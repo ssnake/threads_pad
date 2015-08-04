@@ -17,9 +17,8 @@ class ThreadsPadTest < ActiveSupport::TestCase
     assert_kind_of Module, ThreadsPad
   end
   test "workflow" do
-    pad = ThreadsPad::Pad.new
-    pad << TestWork.new
-    pad.wait
-    assert_equal 5, pad.job_list[0].res
+    ThreadsPad::Pad<< TestWork.new
+    ThreadsPad::Pad.wait
+    assert_equal 5, ThreadsPad::Pad.job_list[0].res
   end
 end

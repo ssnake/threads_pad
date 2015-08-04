@@ -1,21 +1,21 @@
 require 'threads_pad/save_adapter'
 module ThreadsPad
 	class Pad
-		attr_accessor :job_list
+		@job_list = []
+		class << self
+			attr_accessor :job_list
+			def << job
+				@job_list << job
+				job.save_adapter = LogSaveAdapter.new
+				job.start
 
-		def initialize 
-			@job_list = []
-
+			end
+			def wait
+				@job_list.each {|j| j.wait }
+			end
 		end
-		def << job
-			@job_list << job
-			job.save_adapter = LogSaveAdapter.new
-			job.start
-
-		end
-		def wait
-			@job_list.each {|j| j.wait }
-		end
+		
+		
 	end
 
 	class Job
