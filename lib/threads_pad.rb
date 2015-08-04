@@ -1,14 +1,11 @@
 require 'threads_pad/save_adapter'
 module ThreadsPad
 	class Pad
-		@job_list = []
+		
 		class << self
-			attr_accessor :job_list
+			@@job_reflection_class = JobReflection
 			def << job
-				@job_list << job
-				job.save_adapter = LogSaveAdapter.new
-				job.start
-
+				@@job_reflection_class.new job
 			end
 			def wait
 				@job_list.each {|j| j.wait }
@@ -19,17 +16,17 @@ module ThreadsPad
 	end
 
 	class Job
-		def save_adapter= value
-			@save_adapter = value
+		def job_reflection= value
+			@job_reflection = value
 		end
 		def start
 
 			@thread = Thread.new(&(proc{self.wrapper}))
 		end
 		def wrapper
-			@save_adapter.before_work self
+			@job_reflection.before_work self
 			work
-			@save_adapter.after_work self
+			@job_reflection.after_work self
 		end
 		def work
 		end
