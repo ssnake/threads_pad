@@ -11,7 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150804135657) do
+ActiveRecord::Schema.define(version: 20150805130636) do
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
 
   create_table "job_reflections", force: :cascade do |t|
   end
@@ -20,6 +23,12 @@ ActiveRecord::Schema.define(version: 20150804135657) do
     t.boolean "terminated"
     t.boolean "done"
     t.string  "result"
+    t.integer "group_id"
+    t.integer "max"
+    t.integer "current"
+    t.integer "min"
   end
+
+  add_index "threads_pad_jobs", ["group_id"], name: "index_threads_pad_jobs_on_group_id", using: :btree
 
 end
