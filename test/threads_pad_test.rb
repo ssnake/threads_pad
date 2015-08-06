@@ -31,7 +31,7 @@ class ThreadsPadTest < ActiveSupport::TestCase
     ThreadsPad::Pad<< TestWork.new(0, 5)
     assert_equal 1, ThreadsPad::JobReflection.all.count
     ThreadsPad::Pad.wait
-    #sleep 3
+
     assert_equal 5, ThreadsPad::JobReflection.all[0].result.to_i
   end
   test "parallelism" do
