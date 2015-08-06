@@ -1,14 +1,21 @@
 module ThreadsPad
 	class JobReflection < ActiveRecord::Base
 		self.table_name = "threads_pad_jobs"
+
 		def initialize job
 			@job = job
 			@current_iteration = 0
 			@iteration_sync = 1000
-
 			job.job_reflection = self
 			super()
+			init_attributes
 
+		end
+		def init_attributes
+			self.current = 0
+			self.max = 100
+			self.min = 0
+			self.save!			
 		end
 		def before_work job
 		end

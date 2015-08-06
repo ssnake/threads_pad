@@ -12,10 +12,6 @@ module ThreadsPad
 		
 		def << job
 			refl = JobReflection.new job
-			refl.current = 0
-			refl.max = 100
-			refl.min = 0
-			refl.save!
 			@list << refl
 		end
 		def start
@@ -28,39 +24,36 @@ module ThreadsPad
 			grp_id
 		end
 		def wait
-			running = true
-			while running do
-				running = false
-				@list.each do |jr|
-					jr.reload
-					running = running || !jr.done
-
-				end
-				sleep 0.3
-			end
+			ThreadsPad::Pad.wait @list
 		end
 		def current
 			res = 0
 			@list.each do |jr|
-				res += (jr.current-jr.min)/(jr.max-jr.min) / @list.count
+				res += (jr.current-jr.min)/(jr.max-jr.min) * 100.0 / @list.count
 			end
 			res
-
 		end
 
 		class << self
 
 			def << job
 				refl = JobReflection.new job
-				refl.save!
 				job.start
 				return refl
 			end
-			def wait
-				sleep 1
-			end
-			def list
-				JobReflection.all
+			def wait list=nil
+				running = true
+				list = JobReflection.all if list.nil?
+				while running do
+					running = false
+					list.each do |jr|
+						jr.reload
+						running = running || !jr.done
+
+					end
+					#puts "waiting: #{list.inspect}"
+					sleep 0.3
+				end
 			end
 		end
 	private
@@ -75,20 +68,22 @@ module ThreadsPad
 			@job_reflection = value
 		end
 		def start
-
 			@thread = Thread.new(&(proc{self.wrapper}))
 		end
 		def wrapper
-			ActiveRecord::Base.forbid_implicit_checkout_for_thread!
-
+			#ActiveRecord::Base.forbid_implicit_checkout_for_thread!
 			ActiveRecord::Base.connection_pool.with_connection do 
+				@job_reflection.reload
 				@job_reflection.done = false
 				@job_reflection.terminated = false
-				@job_reflection.before_work self
-				@job_reflection.result = work
-				@job_reflection.after_work self
-				@job_reflection.done = true
-				@job_reflection.save!
+				begin
+					@job_reflection.result = work
+				rescue => e
+					puts e.message
+				ensure
+					@job_reflection.done = true
+					@job_reflection.save!
+				end
 			end
 			ActiveRecord::Base.connection.close
 		end

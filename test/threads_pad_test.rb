@@ -6,11 +6,13 @@ class TestWork < ThreadsPad::Job
 		@count = count
 	end
 
-	def work
+	def work 
 		sum= @start
+		self.max = @count
 		@count.times do 
+			#puts sum
 			sum += 1
-			#@job_reflection.current+=1
+			self.current+=1
 		end
 		return sum
 	end
@@ -27,10 +29,13 @@ class ThreadsPadTest < ActiveSupport::TestCase
   end
   test "workflow" do
     ThreadsPad::Pad<< TestWork.new(0, 5)
+    assert_equal 1, ThreadsPad::JobReflection.all.count
     ThreadsPad::Pad.wait
+    #sleep 3
     assert_equal 5, ThreadsPad::JobReflection.all[0].result.to_i
   end
   test "parallelism" do
+  	#skip
   	pad = ThreadsPad::Pad.new
   	pad << TestWork.new(0, 5)
   	pad << TestWork.new(5, 5)
@@ -40,6 +45,7 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	assert id != nil
   end
   test "parallelism2" do
+ 	#skip
   	count = 5000
   	pad = ThreadsPad::Pad.new
   	pad << TestWork.new(0, count)
@@ -48,7 +54,7 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	id = pad.start
   	new_pad = ThreadsPad::Pad.new id
   	new_pad.wait
-  	assert_equal 100, new_pad.current, ThreadsPad::JobReflection.all.inspect
+  	assert_equal 100, new_pad.current# ThreadsPad::JobReflection.all.inspect
 
   end
 end
