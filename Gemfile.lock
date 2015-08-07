@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     threads_pad (0.0.1)
-      rails (~> 4.2.2)
+      rails (~> 4.2.1)
 
 GEM
   remote: https://rubygems.org/

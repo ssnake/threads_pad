@@ -28,6 +28,7 @@ class ThreadsPadTest < ActiveSupport::TestCase
     assert_kind_of Module, ThreadsPad
   end
   test "workflow" do
+    #skip
     ThreadsPad::Pad<< TestWork.new(0, 5)
     assert_equal 1, ThreadsPad::JobReflection.all.count
     ThreadsPad::Pad.wait
@@ -54,7 +55,31 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	id = pad.start
   	new_pad = ThreadsPad::Pad.new id
   	new_pad.wait
-  	assert_equal 100, new_pad.current# ThreadsPad::JobReflection.all.inspect
+  	assert_equal 100, new_pad.current, ThreadsPad::JobReflection.all.inspect
 
   end
+  test "destroy_all" do
+  	#skip
+  	pad = ThreadsPad::Pad.new
+  	pad << TestWork.new(0, 100)
+  	pad.wait
+  	assert_equal 1, ThreadsPad::JobReflection.all.count
+  	pad.destroy_all
+  	assert_equal 0, ThreadsPad::JobReflection.all.count
+    ThreadsPad::Pad << TestWork.new(0, 5000)
+    assert_equal 1, ThreadsPad::JobReflection.all.count
+    ThreadsPad::Pad.wait
+    ThreadsPad::Pad.destroy_all
+    assert_equal 0, ThreadsPad::JobReflection.all.count
+
+  end
+  test "delete on finish" do
+  	pad = ThreadsPad::Pad.new destroy_on_finish: true
+  	pad << TestWork.new(0, 100)
+  	pad.start
+  	pad.wait
+  	sleep 1
+  	assert_equal 0, ThreadsPad::JobReflection.all.reload.count
+  end
+
 end

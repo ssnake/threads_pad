@@ -9,15 +9,15 @@ Gem::Specification.new do |s|
   s.version     = ThreadsPad::VERSION
   s.authors     = [""]
   s.email       = ["max@snakelab.cc"]
-  s.homepage    = "TODO"
-  s.summary     = "TODO: Summary of ThreadsPad."
-  s.description = "TODO: Description of ThreadsPad."
+  s.homepage    = "http://github.com"
+  s.summary     = "tool for launching parallel processes"
+  s.description = "none"
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
 
-  s.add_dependency "rails", "~> 4.2.2"
+  s.add_dependency "rails", "~> 4.2.1"
 
   s.add_development_dependency "sqlite3"
 end

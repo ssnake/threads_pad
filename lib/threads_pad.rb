@@ -2,7 +2,8 @@ require 'threads_pad/job_reflection'
 module ThreadsPad
 	class Pad
 		
-		def initialize id=nil
+		def initialize id=nil, **options
+			@options = options || {}
 			@list = []
 			if id 
 				@group_id = id
@@ -12,12 +13,17 @@ module ThreadsPad
 		
 		def << job
 			refl = JobReflection.new job
+			if @options[:destroy_on_finish]
+				refl.destroy_on_finish = true
+				refl.save!
+			end
 			@list << refl
 		end
 		def start
 			grp_id = get_group_id 
 			@list.each do |jr|
 				jr.group_id = grp_id
+				jr.started = true
 				jr.save
 				jr.start
 			end
@@ -25,6 +31,9 @@ module ThreadsPad
 		end
 		def wait
 			ThreadsPad::Pad.wait @list
+		end
+		def destroy_all
+			ThreadsPad::Pad.destroy_all @list
 		end
 		def current
 			res = 0
@@ -41,6 +50,16 @@ module ThreadsPad
 				job.start
 				return refl
 			end
+			def destroy_all list=nil
+				list = JobReflection.all if list.nil?
+				list.each do |jr|
+					jr.destroy if jr.done || !jr.started
+					if jr.started && !jr.done
+						jr.destroy_on_finish = true 
+						jr.save!
+					end
+				end
+			end
 			def wait list=nil
 				running = true
 				list = JobReflection.all if list.nil?
@@ -48,8 +67,7 @@ module ThreadsPad
 					running = false
 					list.each do |jr|
 						jr.reload
-						running = running || !jr.done
-
+						running = running || !jr.done && jr.started && !jr.destroy_on_finish
 					end
 					#puts "waiting: #{list.inspect}"
 					sleep 0.3
@@ -73,16 +91,21 @@ module ThreadsPad
 		def wrapper
 			#ActiveRecord::Base.forbid_implicit_checkout_for_thread!
 			ActiveRecord::Base.connection_pool.with_connection do 
-				@job_reflection.reload
 				@job_reflection.done = false
 				@job_reflection.terminated = false
+				@job_reflection.started = true
+				@job_reflection.save!
 				begin
 					@job_reflection.result = work
 				rescue => e
 					puts e.message
 				ensure
 					@job_reflection.done = true
-					@job_reflection.save!
+					if @job_reflection.destroy_on_finish
+						@job_reflection.destroy
+					else
+						@job_reflection.save!
+					end
 				end
 			end
 			ActiveRecord::Base.connection.close

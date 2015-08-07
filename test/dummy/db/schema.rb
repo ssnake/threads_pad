@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150806131428) do
+ActiveRecord::Schema.define(version: 20150807082929) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -25,6 +25,8 @@ ActiveRecord::Schema.define(version: 20150806131428) do
     t.integer "max"
     t.integer "current"
     t.integer "min"
+    t.boolean "started"
+    t.boolean "destroy_on_finish"
   end
 
   add_index "threads_pad_jobs", ["group_id"], name: "index_threads_pad_jobs_on_group_id", using: :btree

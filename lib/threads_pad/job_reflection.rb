@@ -15,6 +15,7 @@ module ThreadsPad
 			self.current = 0
 			self.max = 100
 			self.min = 0
+			self.started = false
 			self.save!			
 		end
 		def before_work job

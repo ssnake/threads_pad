@@ -8,6 +8,8 @@ class CreateThreadsPadJobs < ActiveRecord::Migration
 		t.integer :max, :integer
 		t.integer :current, :integer
 		t.integer :min, :integer
+		t.boolean :started
+		t.boolean :destroy_on_finish
 		t.index :group_id
     end
   end
