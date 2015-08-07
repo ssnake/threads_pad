@@ -54,8 +54,11 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	pad << TestWork.new(10, count)
   	id = pad.start
   	new_pad = ThreadsPad::Pad.new id
+  	sleep 0.1
+  	assert new_pad.current > 0.0
   	new_pad.wait
   	assert_equal 100, new_pad.current, ThreadsPad::JobReflection.all.inspect
+  	assert_equal true, new_pad.done?
 
   end
   test "destroy_all" do
@@ -68,9 +71,10 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	assert_equal 0, ThreadsPad::JobReflection.all.count
     ThreadsPad::Pad << TestWork.new(0, 5000)
     assert_equal 1, ThreadsPad::JobReflection.all.count
+    sleep 0.5
     ThreadsPad::Pad.wait
     ThreadsPad::Pad.destroy_all
-    assert_equal 0, ThreadsPad::JobReflection.all.count
+    assert_equal 0, ThreadsPad::JobReflection.all.count,  ThreadsPad::JobReflection.all.inspect
 
   end
   test "delete on finish" do
@@ -81,5 +85,8 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	sleep 1
   	assert_equal 0, ThreadsPad::JobReflection.all.reload.count
   end
-
+  test "no job for id" do
+  	pad = ThreadsPad::Pad.new 123
+  	assert_equal true,  pad.empty?
+  end
 end

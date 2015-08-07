@@ -8,16 +8,20 @@ module ThreadsPad
 			if id 
 				@group_id = id
 				@list = JobReflection.where('group_id = ?', id)
+
 			end
 		end
 		
 		def << job
-			refl = JobReflection.new job
+			refl = JobReflection.new job, @options
 			if @options[:destroy_on_finish]
 				refl.destroy_on_finish = true
 				refl.save!
 			end
 			@list << refl
+		end
+		def empty?
+			@list.count == 0
 		end
 		def start
 			grp_id = get_group_id 
@@ -36,11 +40,11 @@ module ThreadsPad
 			ThreadsPad::Pad.destroy_all @list
 		end
 		def current
-			res = 0
-			@list.each do |jr|
-				res += (jr.current-jr.min)/(jr.max-jr.min) * 100.0 / @list.count
-			end
-			res
+			ThreadsPad::Pad.current @list
+			
+		end
+		def done?
+			ThreadsPad::Pad.done? @list
 		end
 
 		class << self
@@ -72,6 +76,23 @@ module ThreadsPad
 					#puts "waiting: #{list.inspect}"
 					sleep 0.3
 				end
+			end
+			def current list=nil
+				list = JobReflection.all if list.nil?
+				res = 0
+
+				list.each do |jr|
+					res += (jr.current.to_f-jr.min)/(jr.max-jr.min) * 100.0 / list.count
+				end
+				res
+			end
+			def done? list =nil
+				list = JobReflection.all if list.nil?
+				res = false
+				list.each do |jr|
+					res ||= jr.done
+				end
+				res
 			end
 		end
 	private
@@ -127,6 +148,7 @@ module ThreadsPad
 			@job_reflection.save!
 		end
 		def current=value
+			return if @job_reflection.nil?
 			@job_reflection.current = value
 			@job_reflection.save_if_needed
 		end
@@ -135,6 +157,7 @@ module ThreadsPad
 		end
 
 		def terminated?
+			return false if @job_reflection.nil?
 			@job_reflection.reload
 			@job_reflection.terminated
 		end

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    threads_pad (0.0.1)
+    threads_pad (0.0.7)
       rails (~> 4.2.1)
 
 GEM
