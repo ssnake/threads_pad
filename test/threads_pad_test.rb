@@ -8,7 +8,7 @@ class TestWork < ThreadsPad::Job
 	end
 
 	def work 
-		puts "started worker"
+		#puts "started worker"
 		sum= @start
 		self.max = @count
 		@count.times do 
@@ -127,5 +127,6 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	pad.start
   	pad.wait
   	assert pad.logs.count > 0
+  	assert pad.logs.first.created_at != nil
   end
 end

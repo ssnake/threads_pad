@@ -4,6 +4,7 @@ class CreateThreadsPadJobLogs < ActiveRecord::Migration
 		t.integer :job_reflection_id
 		t.integer :level
 		t.text :msg
+		t.datetime "created_at",          null: false
 		t.index :job_reflection_id
     end
   end
