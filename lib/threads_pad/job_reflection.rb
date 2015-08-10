@@ -1,6 +1,7 @@
 module ThreadsPad
-	class JobReflection < ActiveRecord::Base
+	class JobReflection < ActiveRecord::Base	
 		self.table_name = "threads_pad_jobs"
+		has_many :job_reflection_logs, dependent: :destroy
 
 		def initialize job, **options
 			@job = job

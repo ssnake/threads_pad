@@ -1,17 +1,20 @@
 require 'test_helper'
 
 class TestWork < ThreadsPad::Job
-	def initialize start, count
+	def initialize start, count, use_logs=false
 		@start = start
 		@count = count
+		@use_logs = use_logs
 	end
 
 	def work 
+		puts "started worker"
 		sum= @start
 		self.max = @count
 		@count.times do 
 			sum += 1
 			self.current+=1
+			debug "current #{self.current}" if @use_logs
 			if terminated?
 				puts "terminated"
 				break
@@ -25,6 +28,7 @@ class ThreadsPadTest < ActiveSupport::TestCase
   self.use_transactional_fixtures = false
   def setup
   	ThreadsPad::JobReflection.destroy_all
+  	#ThreadsPad::JobReflectionLog.destroy_all
   end
   
   test "truth" do
@@ -81,6 +85,7 @@ class ThreadsPadTest < ActiveSupport::TestCase
 
   end
   test "delete on finish" do
+  	#skip
   	pad = ThreadsPad::Pad.new destroy_on_finish: true
   	pad << TestWork.new(0, 100)
   	pad.start
@@ -89,10 +94,12 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	assert_equal 0, ThreadsPad::JobReflection.all.reload.count
   end
   test "no job for id" do
+  	#skip
   	pad = ThreadsPad::Pad.new 123
   	assert_equal true,  pad.empty?
   end
   test "terminated" do
+  	#skip
   	pad = ThreadsPad::Pad.new destroy_on_finish: true
   	pad << TestWork.new(0, 9999999)
   	pad.start
@@ -101,5 +108,24 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	pad.wait
   	assert_equal 0, ThreadsPad::JobReflection.all.reload.count
 
+  end
+  test "logs" do
+  	assert ThreadsPad::JobReflection.all.reload.count == 0
+  	assert ThreadsPad::JobReflectionLog.all.reload.count == 0
+  	ThreadsPad::Pad << TestWork.new(0, 100, true)	
+  	ThreadsPad::Pad.wait
+  	assert ThreadsPad::JobReflection.all.reload.count > 0
+  	assert ThreadsPad::JobReflectionLog.all.reload.count > 0
+  	ThreadsPad::Pad.destroy_all
+  	assert ThreadsPad::JobReflection.all.reload.count == 0, ThreadsPad::JobReflection.all.reload.inspect
+  	assert ThreadsPad::JobReflectionLog.all.reload.count == 0
+
+  end
+  test "logs2" do
+  	pad = ThreadsPad::Pad.new 
+  	pad << TestWork.new(0, 100, true)
+  	pad.start
+  	pad.wait
+  	assert pad.logs.count > 0
   end
 end

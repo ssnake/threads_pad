@@ -1,4 +1,6 @@
+require 'threads_pad/job_reflection_log'
 require 'threads_pad/job_reflection'
+
 module ThreadsPad
 	class Pad
 		
@@ -49,6 +51,13 @@ module ThreadsPad
 		def terminate
 			ThreadsPad::Pad.terminate @list
 		end
+		def logs
+			ret = []
+			@list.each do |jr|
+				jr.job_reflection_logs.each { |l| ret << l}
+			end
+			ret
+		end
 
 		class << self
 
@@ -68,13 +77,17 @@ module ThreadsPad
 				end
 			end
 			def wait list=nil
+				sleep 0.1
 				running = true
 				list = JobReflection.all if list.nil?
 				while running do
 					running = false
 					list.each do |jr|
-						jr.reload
-						running = running || !jr.done && jr.started && !jr.destroy_on_finish
+						begin
+							jr.reload
+							running = running || !jr.done && jr.started && !jr.destroy_on_finish
+						rescue ActiveRecord::RecordNotFound
+						end
 					end
 					#puts "waiting: #{list.inspect}"
 					sleep 0.3
@@ -173,6 +186,9 @@ module ThreadsPad
 			return false if @job_reflection.nil?
 			@job_reflection.reload_if_needed
 			@job_reflection.terminated
+		end
+		def debug msg
+			@job_reflection.job_reflection_logs.create(level: 0, msg: msg)
 		end
 	end
 end
