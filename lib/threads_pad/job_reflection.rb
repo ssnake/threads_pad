@@ -39,6 +39,13 @@ module ThreadsPad
 			end
 
 		end
+		def reload_if_needed
+			@current_iteration += 1
+			if @current_iteration > @iteration_sync
+				@current_iteration = 0
+				reload
+			end		
+		end
 
 	end
 end

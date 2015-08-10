@@ -46,6 +46,9 @@ module ThreadsPad
 		def done?
 			ThreadsPad::Pad.done? @list
 		end
+		def terminate
+			ThreadsPad::Pad.terminate @list
+		end
 
 		class << self
 
@@ -94,6 +97,13 @@ module ThreadsPad
 				end
 				res
 			end
+			def terminate list=nil
+				list = JobReflection.all if list.nil?
+				list.each do |jr|
+					jr.terminated = true
+					jr.save!
+				end
+			end
 		end
 	private
 		def get_group_id
@@ -112,6 +122,7 @@ module ThreadsPad
 		def wrapper
 			#ActiveRecord::Base.forbid_implicit_checkout_for_thread!
 			ActiveRecord::Base.connection_pool.with_connection do 
+				@current = 0.0
 				@job_reflection.done = false
 				@job_reflection.terminated = false
 				@job_reflection.started = true
@@ -125,6 +136,7 @@ module ThreadsPad
 					if @job_reflection.destroy_on_finish
 						@job_reflection.destroy
 					else
+						
 						@job_reflection.save!
 					end
 				end
@@ -148,17 +160,18 @@ module ThreadsPad
 			@job_reflection.save!
 		end
 		def current=value
+			@current = value
 			return if @job_reflection.nil?
-			@job_reflection.current = value
+			@job_reflection.current = @current
 			@job_reflection.save_if_needed
 		end
 		def current 
-			@job_reflection.current
+			@current
 		end
 
 		def terminated?
 			return false if @job_reflection.nil?
-			@job_reflection.reload
+			@job_reflection.reload_if_needed
 			@job_reflection.terminated
 		end
 	end

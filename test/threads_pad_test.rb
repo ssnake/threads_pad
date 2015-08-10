@@ -10,9 +10,12 @@ class TestWork < ThreadsPad::Job
 		sum= @start
 		self.max = @count
 		@count.times do 
-			#puts sum
 			sum += 1
 			self.current+=1
+			if terminated?
+				puts "terminated"
+				break
+			end
 		end
 		return sum
 	end
@@ -88,5 +91,15 @@ class ThreadsPadTest < ActiveSupport::TestCase
   test "no job for id" do
   	pad = ThreadsPad::Pad.new 123
   	assert_equal true,  pad.empty?
+  end
+  test "terminated" do
+  	pad = ThreadsPad::Pad.new destroy_on_finish: true
+  	pad << TestWork.new(0, 9999999)
+  	pad.start
+  	sleep 0.5
+  	pad.terminate
+  	pad.wait
+  	assert_equal 0, ThreadsPad::JobReflection.all.reload.count
+
   end
 end
