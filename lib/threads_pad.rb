@@ -120,7 +120,9 @@ module ThreadsPad
 		end
 	private
 		def get_group_id
-			JobReflection.maximum("group_id") || 0 + 1
+			#JobReflection.maximum("group_id") || 0 + 1
+			result = JobReflection.connection.execute("SELECT nextval('threads_pad_group_seq')")
+			result[0]['nextval'].to_i
 		end		
 		
 	end

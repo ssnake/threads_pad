@@ -129,4 +129,9 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	assert pad.logs.count > 0
   	assert pad.logs.first.created_at != nil
   end
+  test "sequence" do
+  	pad = ThreadsPad::Pad.new
+  	grp_id =pad.start
+  	assert_equal grp_id + 1, pad.start
+  end
 end
