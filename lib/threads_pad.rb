@@ -190,7 +190,7 @@ module ThreadsPad
 			@job_reflection.terminated
 		end
 		def debug msg
-			@job_reflection.job_reflection_logs.create(level: 0, msg: msg)
+			@job_reflection.job_reflection_logs.create(level: 0, msg: msg) if @job_reflection
 		end
 	end
 end
