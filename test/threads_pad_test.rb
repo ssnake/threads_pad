@@ -131,7 +131,10 @@ class ThreadsPadTest < ActiveSupport::TestCase
   end
   test "sequence" do
   	pad = ThreadsPad::Pad.new
-  	grp_id =pad.start
-  	assert_equal grp_id + 1, pad.start
+      pad << TestWork.new(0, 100000)
+      grp_id =pad.start
+      pad2 = ThreadsPad::Pad.new
+      pad2 << TestWork.new(0, 100)
+  	assert_equal grp_id + 1, pad2.start
   end
 end

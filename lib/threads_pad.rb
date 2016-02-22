@@ -120,9 +120,8 @@ module ThreadsPad
 		end
 	private
 		def get_group_id
-			#JobReflection.maximum("group_id") || 0 + 1
-			result = JobReflection.connection.execute("SELECT nextval('threads_pad_group_seq')")
-			result[0]['nextval'].to_i
+			(JobReflection.maximum("group_id") || 0) + 1
+			
 		end		
 		
 	end
@@ -191,6 +190,8 @@ module ThreadsPad
 		end
 		def debug msg
 			@job_reflection.job_reflection_logs.create(level: 0, msg: msg) if @job_reflection
+		rescue => e
+			puts "debug: #{e.message}"
 		end
 	end
 end
