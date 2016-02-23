@@ -69,6 +69,7 @@ module ThreadsPad
 			def destroy_all list=nil
 				list = JobReflection.all if list.nil?
 				list.each do |jr|
+
 					jr.destroy if jr.done || !jr.started
 					if jr.started && !jr.done
 						jr.destroy_on_finish = true 
@@ -76,7 +77,7 @@ module ThreadsPad
 					end
 				end
 			end
-			def wait list=nil
+			def wait list=nil, wait_for_destroy_on_finish=false
 				sleep 0.1
 				running = true
 				list = JobReflection.all if list.nil?
@@ -85,13 +86,17 @@ module ThreadsPad
 					list.each do |jr|
 						begin
 							jr.reload
-							running = running || !jr.done && jr.started && !jr.destroy_on_finish
+							running = running || !jr.done && jr.started && (wait_for_destroy_on_finish || !jr.destroy_on_finish)
 						rescue ActiveRecord::RecordNotFound
 						end
 					end
 					#puts "waiting: #{list.inspect}"
+
 					sleep 0.3
 				end
+			end
+			def wait_all list=nil
+				self.wait list, true
 			end
 			def current list=nil
 				list = JobReflection.all if list.nil?
@@ -149,8 +154,9 @@ module ThreadsPad
 					@job_reflection.done = true
 					if @job_reflection.destroy_on_finish
 						@job_reflection.destroy
+						puts "finish destroy"
 					else
-						
+						puts "finish done"
 						@job_reflection.save!
 					end
 				end
