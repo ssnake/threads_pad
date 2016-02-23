@@ -29,5 +29,5 @@ Let's rake it:
 
 These migrations will create two tables:
 
-* threads_pad_jobs - it will contains all meta data for your job like: current, min, max, started, destroy_on_finish etc
-* threads_pad_job_logs - it will contains all logs are connected to your job.
+* threads_pad_jobs - it will contain all meta data for your job like: current, min, max, started, destroy_on_finish etc
+* threads_pad_job_logs - it will contain all logs are connected to your job.
