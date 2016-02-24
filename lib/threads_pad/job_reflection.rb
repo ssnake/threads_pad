@@ -12,7 +12,7 @@ module ThreadsPad
 				@iteration_sync = 100
 			end
 
-			job.job_reflection = self
+			job.job_reflection = self if job.present?
 			super()
 			init_attributes
 
@@ -46,6 +46,15 @@ module ThreadsPad
 				@current_iteration = 0
 				reload
 			end		
+		end
+		def thread_alive?
+			ret = false
+			Thread.list.each do |t|
+				ret = true if t.object_id.to_s == self.thread_id
+
+			end
+			ret
+
 		end
 
 	end

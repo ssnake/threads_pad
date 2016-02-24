@@ -13,7 +13,7 @@ And then execute:
 
     $ bundle
 
-Then, you have to generate migrations:
+You have to generate migrations:
 
     rails generate threads_pad install
 

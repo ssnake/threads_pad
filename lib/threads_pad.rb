@@ -1,5 +1,6 @@
 require 'threads_pad/job_reflection_log'
 require 'threads_pad/job_reflection'
+require 'threads_pad/helper'
 
 module ThreadsPad
 	class Pad
@@ -69,16 +70,16 @@ module ThreadsPad
 			def destroy_all list=nil
 				list = JobReflection.all if list.nil?
 				list.each do |jr|
-
-					jr.destroy if jr.done || !jr.started
-					if jr.started && !jr.done
+					if jr.started && !jr.done && jr.thread_alive?
 						jr.destroy_on_finish = true 
 						jr.save!
+					else
+						jr.destroy #if jr.done #|| !jr.started
 					end
 				end
 			end
 			def wait list=nil, wait_for_destroy_on_finish=false
-				sleep 0.1
+				sleep 0.1 # needed to be sure other threads are started
 				running = true
 				list = JobReflection.all if list.nil?
 				while running do
@@ -86,7 +87,7 @@ module ThreadsPad
 					list.each do |jr|
 						begin
 							jr.reload
-							running = running || !jr.done && jr.started && (wait_for_destroy_on_finish || !jr.destroy_on_finish)
+							running = running || jr.thread_alive? && !jr.done && jr.started && (wait_for_destroy_on_finish || !jr.destroy_on_finish)
 						rescue ActiveRecord::RecordNotFound
 						end
 					end
@@ -139,24 +140,26 @@ module ThreadsPad
 			@thread = Thread.new(&(proc{self.wrapper}))
 		end
 		def wrapper
+
 			#ActiveRecord::Base.forbid_implicit_checkout_for_thread!
 			ActiveRecord::Base.connection_pool.with_connection do 
-				@current = 0.0
-				@job_reflection.done = false
-				@job_reflection.terminated = false
-				@job_reflection.started = true
-				@job_reflection.save!
 				begin
+					@current = 0.0
+					@job_reflection.done = false
+					@job_reflection.terminated = false
+					@job_reflection.started = true
+					@job_reflection.thread_id = @thread.object_id.to_s
+					@job_reflection.save!
+
+				
 					@job_reflection.result = work
 				rescue => e
-					puts e.message
+					puts "ThreadsPad::Job#wrapper: #{e.message} #{e.backtrace.inspect}"
 				ensure
 					@job_reflection.done = true
 					if @job_reflection.destroy_on_finish
 						@job_reflection.destroy
-						puts "finish destroy"
 					else
-						puts "finish done"
 						@job_reflection.save!
 					end
 				end
@@ -200,4 +203,8 @@ module ThreadsPad
 			puts "debug: #{e.message}"
 		end
 	end
+end
+
+ActiveSupport.on_load(:action_view) do
+  include ThreadsPad::Helper
 end

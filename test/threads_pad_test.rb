@@ -8,7 +8,7 @@ class TestWork < ThreadsPad::Job
 	end
 
 	def work 
-		#puts "started worker"
+		puts "started worker"
 		sum= @start
 		self.max = @count
 		@count.times do 
@@ -27,7 +27,10 @@ end
 class ThreadsPadTest < ActiveSupport::TestCase
   self.use_transactional_fixtures = false
   def setup
+
     ThreadsPad::JobReflection.destroy_all
+    ThreadsPad::JobReflectionLog.destroy_all
+    #puts "JR count =#{ThreadsPad::JobReflection.count}"
   end
   def teardown
       
@@ -161,5 +164,14 @@ class ThreadsPadTest < ActiveSupport::TestCase
       pad2 << TestWork.new(0, 100)
   	assert_equal grp_id + 1, pad2.start
       puts "finish sequence"
+  end
+  test 'destroy if thread is not alive' do
+    # skip
+    assert_equal 0, ThreadsPad::JobReflection.all.reload.count
+    j = ThreadsPad::JobReflection.new nil
+    j.started = true
+    j.save
+    ThreadsPad::Pad.destroy_all
+    assert_equal 0, ThreadsPad::JobReflection.all.reload.count
   end
 end

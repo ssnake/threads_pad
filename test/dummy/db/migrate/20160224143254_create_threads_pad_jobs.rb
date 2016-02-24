@@ -5,6 +5,7 @@ class CreateThreadsPadJobs < ActiveRecord::Migration
 		t.boolean :done
 		t.string :result
 		t.integer :group_id, :integer
+		t.string :thread_id
 		t.integer :max, :integer
 		t.integer :current, :integer
 		t.integer :min, :integer

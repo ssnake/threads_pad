@@ -2,6 +2,7 @@ class CreateThreadsPadJobs < ActiveRecord::Migration
   def change
     create_table :threads_pad_jobs do |t|
 		t.boolean :terminated
+		t.string :thread_id
 		t.boolean :done
 		t.string :result
 		t.integer :group_id, :integer

@@ -11,7 +11,10 @@ gemspec
 # your gem to rubygems.org.
 
 # To use a debugger
-gem 'rb-readline' # fixing LoadError: cannot load such file -- readline
-gem 'byebug', group: [:development, :test]
+group :development, :test do
+	gem 'rb-readline' # fixing LoadError: cannot load such file -- readline
+	gem 'byebug'
+end
 gem 'pg'
+gem 'rails' , '~>4.2.5'
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160222144817) do
+ActiveRecord::Schema.define(version: 20160224143255) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -31,6 +31,7 @@ ActiveRecord::Schema.define(version: 20160222144817) do
     t.string  "result"
     t.integer "group_id"
     t.integer "integer"
+    t.string  "thread_id"
     t.integer "max"
     t.integer "current"
     t.integer "min"
