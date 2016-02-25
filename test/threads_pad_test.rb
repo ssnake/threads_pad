@@ -174,4 +174,8 @@ class ThreadsPadTest < ActiveSupport::TestCase
     ThreadsPad::Pad.destroy_all
     assert_equal 0, ThreadsPad::JobReflection.all.reload.count
   end
+  test 'done' do
+    assert_equal 0, ThreadsPad::JobReflection.all.reload.count
+    assert ThreadsPad::Pad.done?
+  end
 end

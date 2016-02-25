@@ -110,9 +110,9 @@ module ThreadsPad
 			end
 			def done? list =nil
 				list = JobReflection.all if list.nil?
-				res = false
+				res = true
 				list.each do |jr|
-					res ||= jr.done
+					res &&= jr.done
 				end
 				res
 			end
@@ -122,6 +122,9 @@ module ThreadsPad
 					jr.terminated = true
 					jr.save!
 				end
+			end
+			def  empty?
+				JobReflection.count > 0
 			end
 		end
 	private
