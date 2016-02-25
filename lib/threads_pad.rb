@@ -124,7 +124,7 @@ module ThreadsPad
 				end
 			end
 			def  empty?
-				JobReflection.count > 0
+				JobReflection.count == 0
 			end
 		end
 	private

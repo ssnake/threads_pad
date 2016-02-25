@@ -8,7 +8,7 @@ class TestWork < ThreadsPad::Job
 	end
 
 	def work 
-		puts "started worker"
+		#puts "started worker"
 		sum= @start
 		self.max = @count
 		@count.times do 
@@ -47,17 +47,14 @@ class ThreadsPadTest < ActiveSupport::TestCase
   end
   test "workflow" do
     # skip
-    puts "start workflow"
     ThreadsPad::Pad<< TestWork.new(0, 5)
     assert_equal 1, ThreadsPad::JobReflection.all.count
     ThreadsPad::Pad.wait
 
     assert_equal 5, ThreadsPad::JobReflection.all[0].result.to_i
-    puts "finish workflow"
   end
   test "parallelism" do
   	# skip
-      puts "start paral"
   	pad = ThreadsPad::Pad.new
   	pad << TestWork.new(0, 5)
   	pad << TestWork.new(5, 5)
@@ -65,11 +62,9 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	id = pad.start
 
   	assert id != nil
-      puts "finish paral"
   end
   test "parallelism2" do
  	# skip
-      puts "start paral2"
   	count = 5000
   	pad = ThreadsPad::Pad.new
   	pad << TestWork.new(0, count)
@@ -82,11 +77,9 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	new_pad.wait
   	assert_equal 100, new_pad.current, ThreadsPad::JobReflection.all.inspect
   	assert_equal true, new_pad.done?
-      puts "finish paral2"
   end
   test "destroy_all" do
   	# skip
-      puts "start destroy_all"
   	pad = ThreadsPad::Pad.new
   	pad << TestWork.new(0, 100)
   	pad.wait
@@ -99,18 +92,15 @@ class ThreadsPadTest < ActiveSupport::TestCase
     ThreadsPad::Pad.wait
     ThreadsPad::Pad.destroy_all
     assert_equal 0, ThreadsPad::JobReflection.all.count,  ThreadsPad::JobReflection.all.inspect
-   puts "finish destroy_all"
   end
   test "delete on finish" do
       # skip	
-      puts "start delete on finish"
   	pad = ThreadsPad::Pad.new destroy_on_finish: true
   	pad << TestWork.new(0, 100)
   	pad.start
   	pad.wait
   	sleep 1
   	assert_equal 0, ThreadsPad::JobReflection.all.reload.count
-      puts "finish delete on finish"
   end
   test "no job for id" do
   	# skip
@@ -119,7 +109,6 @@ class ThreadsPadTest < ActiveSupport::TestCase
   end
   test "terminated" do
   	# skip
-      puts  "start terminated"
   	pad = ThreadsPad::Pad.new destroy_on_finish: true
   	pad << TestWork.new(0, 9999999)
   	pad.start
@@ -127,11 +116,9 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	pad.terminate
   	pad.wait
   	assert_equal 0, ThreadsPad::JobReflection.all.reload.count
-      puts "finish terminated"
   end
   test "logs" do
       # skip
-      puts "start logs"
   	assert ThreadsPad::JobReflection.all.reload.count == 0
   	assert ThreadsPad::JobReflectionLog.all.reload.count == 0
   	ThreadsPad::Pad << TestWork.new(0, 100, true)	
@@ -141,29 +128,24 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	ThreadsPad::Pad.destroy_all
   	assert ThreadsPad::JobReflection.all.reload.count == 0, ThreadsPad::JobReflection.all.reload.inspect
   	assert ThreadsPad::JobReflectionLog.all.reload.count == 0
-      puts "finish logs"
   end
   test "logs2" do
       # skip
-      puts "start logs2"
   	pad = ThreadsPad::Pad.new 
   	pad << TestWork.new(0, 100, true)
   	pad.start
   	pad.wait
   	assert pad.logs.count > 0
   	assert pad.logs.first.created_at != nil
-      puts "finish logs2"
   end
   test "sequence" do
       # skip
-      puts "start sequence"
   	pad = ThreadsPad::Pad.new
       pad << TestWork.new(0, 100000)
       grp_id =pad.start
       pad2 = ThreadsPad::Pad.new
       pad2 << TestWork.new(0, 100)
   	assert_equal grp_id + 1, pad2.start
-      puts "finish sequence"
   end
   test 'destroy if thread is not alive' do
     # skip
@@ -177,5 +159,9 @@ class ThreadsPadTest < ActiveSupport::TestCase
   test 'done' do
     assert_equal 0, ThreadsPad::JobReflection.all.reload.count
     assert ThreadsPad::Pad.done?
+  end
+  test 'empty' do
+    assert_equal 0, ThreadsPad::JobReflection.all.reload.count
+    assert ThreadsPad::Pad.empty?
   end
 end
