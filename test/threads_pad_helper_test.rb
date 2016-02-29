@@ -50,10 +50,17 @@ class ThreadsPadHelperTest < ActiveSupport::TestCase
 
   end
   test 'symbolization' do
-  	assert_equal 1, filter_job_logs(["job_reflection_id": 3, 'id': 1]).length
-  	assert_equal 1, filter_job_logs([{job_reflection_id: 3, 'id': 1}, {"job_reflection_id": 3, 'id': 2}]).length
-  	assert_equal 0, filter_job_logs([{'job_reflection_id': 3, 'id': 1}, {job_reflection_id: 3, 'id': 2}]).length
+  	assert_equal 1, filter_job_logs(["job_reflection_id": 3, 'id': 1, group_id: 1]).length
+  	assert_equal 1, filter_job_logs([{job_reflection_id: 3, 'id': 1, group_id: 1}, {"job_reflection_id": 3, 'id': 2, group_id: 1}]).length
+  	assert_equal 0, filter_job_logs([{'job_reflection_id': 3, 'id': 1, group_id: 1}, {job_reflection_id: 3, 'id': 2, group_id: 1}]).length
   	puts session.inspect
 
+  end
+  test 'general log' do
+    assert_equal 5, filter_job_logs(ThreadsPad::JobReflectionLog.all).count
+    ThreadsPad::JobReflectionLog.create({id: 6, group_id: 1, job_reflection_id: nil, level: 100, msg: "1-0" })
+    assert_equal 1, filter_job_logs(ThreadsPad::JobReflectionLog.all).count
+    ThreadsPad::Pad.destroy_all
+    assert_equal 0, (ThreadsPad::JobReflectionLog.all).count
   end
 end

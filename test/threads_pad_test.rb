@@ -145,7 +145,7 @@ class ThreadsPadTest < ActiveSupport::TestCase
       grp_id =pad.start
       pad2 = ThreadsPad::Pad.new
       pad2 << TestWork.new(0, 100)
-  	assert_equal grp_id + 1, pad2.start
+  	assert_not_equal grp_id, pad2.start
   end
   test 'destroy if thread is not alive' do
     # skip

@@ -24,9 +24,9 @@ module ThreadsPad
 		end
 	private
 		def filter_job_logs_save l
-			return if l[:id].nil? || l[:job_reflection_id].nil? 
+			return if l[:id].nil? || l[:group_id].nil? 
 			ses = session[:thread_pad_log_filter] || {}
-			key = l[:job_reflection_id]
+			key = l[:group_id]
 			key = key.to_s if key.is_a? Fixnum
 			val = l[:id]
 			ses[key] = val
@@ -35,10 +35,10 @@ module ThreadsPad
 
 		end
 		def filter_job_log_exist? l
-			return true if l[:id].nil? || l[:job_reflection_id].nil? 
+			return true if l[:id].nil? || l[:group_id].nil? 
 
 			ses = session[:thread_pad_log_filter]
-			key = l[:job_reflection_id]
+			key = l[:group_id]
 			key = key.to_s if key.is_a? Fixnum
 			val = l[:id]
 			#ses.symbolize_keys!

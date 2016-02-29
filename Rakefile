@@ -27,6 +27,7 @@ Rake::TestTask.new(:test) do |t|
   t.libs << 'lib'
   t.libs << 'test'
   t.pattern = 'test/**/*_test.rb'
+  #t.pattern = 'test/threads_pad_helper_test.rb'
   t.verbose = false
 end
 

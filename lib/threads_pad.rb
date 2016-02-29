@@ -71,6 +71,7 @@ module ThreadsPad
 				return refl
 			end
 			def destroy_all list=nil
+				JobReflectionLog.destroy_all  if list.nil?
 				list = JobReflection.all if list.nil?
 				list.each do |jr|
 					if jr.started && !jr.done && jr.thread_alive?
@@ -80,6 +81,7 @@ module ThreadsPad
 						jr.destroy #if jr.done #|| !jr.started
 					end
 				end
+
 			end
 			def wait list=nil, wait_for_destroy_on_finish=false
 				sleep 0.1 # needed to be sure other threads are started
@@ -98,6 +100,7 @@ module ThreadsPad
 
 					sleep 0.3
 				end
+
 			end
 			def wait_all list=nil
 				self.wait list, true
@@ -132,7 +135,12 @@ module ThreadsPad
 		end
 	private
 		def get_group_id
-			(JobReflection.maximum("group_id") || 0) + 1
+			#(JobReflection.maximum("group_id") || 0) + 1
+			id = -1
+			begin
+				id = Random.rand(0..2**31)
+			end until JobReflection.where(group_id: id).length == 0
+			id
 			
 		end		
 		
