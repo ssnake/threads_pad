@@ -170,4 +170,9 @@ class ThreadsPadTest < ActiveSupport::TestCase
       pad.log 'test'
       assert_equal 1, pad.logs.count
   end
+  test 'log4' do
+    ThreadsPad::JobReflectionLog.create({id: 1, group_id: 1, job_reflection_id: 1, level: 100, msg: "1-1" })
+    pad = ThreadsPad::Pad.new 1
+    assert_equal 1, pad.logs.count
+  end
 end

@@ -8,12 +8,13 @@ module ThreadsPad
 		def initialize id=nil, **options
 			@options = options || {}
 			@list = []
+			@grp_id = id
 			if id 
 				@group_id = id
 				@list = JobReflection.where('group_id = ?', id)
 
 			end
-			@grp_id = nil
+			
 		end
 		
 		def << job
