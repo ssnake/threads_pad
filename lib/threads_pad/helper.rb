@@ -24,16 +24,30 @@ module ThreadsPad
 		end
 	private
 		def filter_job_logs_save l
-			session[:thread_pad_log_filter] ||= {}
-			ses = session[:thread_pad_log_filter]
-			ses['last_log_id'] = l[:id] unless l[:id].nil?
+			return if l[:id].nil? || l[:job_reflection_id].nil? 
+			ses = session[:thread_pad_log_filter] || {}
+			key = l[:job_reflection_id]
+			val = l[:id]
+			ses[key] = val
+			session[:thread_pad_log_filter] = ses
+
 
 		end
 		def filter_job_log_exist? l
-			ses =session[:thread_pad_log_filter]
-			return false unless ses.has_key?('last_log_id')
+			return true if l[:id].nil? || l[:job_reflection_id].nil? 
 
-			return ses['last_log_id'] >= l[:id].to_i
+			ses = session[:thread_pad_log_filter]
+			key = l[:job_reflection_id]
+			val = l[:id]
+			if ses.has_key? key
+				ses[key].to_i >= l[:id].to_i
+			else
+				false
+			end
+
+			
+
+			
 
 		end
 	end
