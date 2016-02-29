@@ -34,6 +34,7 @@ class ThreadsPadHelperTest < ActiveSupport::TestCase
   test 'filter_job_logs_diff_job_refl' do
   	l21 = ThreadsPad::JobReflectionLog.create({id: 6, job_reflection_id: 2, level: 100, msg: "2-1" })
   	l22 = ThreadsPad::JobReflectionLog.create({id: 7, job_reflection_id: 2, level: 100, msg: "2-2" })
+
   	l23 = ThreadsPad::JobReflectionLog.create({id: 8, job_reflection_id: 2, level: 100, msg: "2-3" })
 
   	list2 = [l21, l22]
@@ -44,7 +45,15 @@ class ThreadsPadHelperTest < ActiveSupport::TestCase
   	list2 << l23
   	assert_equal 1, filter_job_logs(list2).count
   	assert_equal 3, filter_job_logs(ThreadsPad::JobReflectionLog.all).count
+  	assert_equal 0, filter_job_logs(ThreadsPad::JobReflectionLog.all).count
 
+
+  end
+  test 'symbolization' do
+  	assert_equal 1, filter_job_logs(["job_reflection_id": 3, 'id': 1]).length
+  	assert_equal 1, filter_job_logs([{job_reflection_id: 3, 'id': 1}, {"job_reflection_id": 3, 'id': 2}]).length
+  	assert_equal 0, filter_job_logs([{'job_reflection_id': 3, 'id': 1}, {job_reflection_id: 3, 'id': 2}]).length
+  	puts session.inspect
 
   end
 end

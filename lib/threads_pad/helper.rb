@@ -27,6 +27,7 @@ module ThreadsPad
 			return if l[:id].nil? || l[:job_reflection_id].nil? 
 			ses = session[:thread_pad_log_filter] || {}
 			key = l[:job_reflection_id]
+			key = key.to_s if key.is_a? Fixnum
 			val = l[:id]
 			ses[key] = val
 			session[:thread_pad_log_filter] = ses
@@ -38,10 +39,13 @@ module ThreadsPad
 
 			ses = session[:thread_pad_log_filter]
 			key = l[:job_reflection_id]
+			key = key.to_s if key.is_a? Fixnum
 			val = l[:id]
-			if ses.has_key? key
+			#ses.symbolize_keys!
+			if ses.has_key?(key)
 				ses[key].to_i >= l[:id].to_i
 			else
+				#puts "session #{ses.inspect}. no key #{key.inspect} "
 				false
 			end
 
