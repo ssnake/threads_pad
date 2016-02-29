@@ -8,3 +8,4 @@ test/dummy/tmp/
 test/dummy/.sass-cache
 .fuse_hidden*
 *.gem
+.byebug_*

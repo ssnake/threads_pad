@@ -3,19 +3,20 @@ module ThreadsPad
 		def filter_job_logs logs
 			
 			ret = []
-			
-			logs.sort { |x, y| x[:id] <=> y[:id]}. each do |l|
+			if logs.present?
+				logs.sort { |x, y| x[:id] <=> y[:id]}. each do |l|
 
-				if session.has_key? :thread_pad_log_filter
-					unless filter_job_log_exist?(l)	
+					if session.has_key? :thread_pad_log_filter
+						unless filter_job_log_exist?(l)	
+							filter_job_logs_save l
+							ret << l
+						else					
+
+						end
+					else
 						filter_job_logs_save l
 						ret << l
-					else					
-
 					end
-				else
-					filter_job_logs_save l
-					ret << l
 				end
 			end
 
