@@ -5,11 +5,11 @@ class ThreadsPadHelperTest < ActiveSupport::TestCase
   include ThreadsPad::Helper
   
   def setup
-  	ThreadsPad::JobReflectionLog.create({id: 1, job_reflection_id: 1, level: 100, msg: "1-1" })
-  	ThreadsPad::JobReflectionLog.create({id: 2, job_reflection_id: 1, level: 100, msg: "1-2" })
-  	ThreadsPad::JobReflectionLog.create({id: 3, job_reflection_id: 1, level: 100, msg: "1-3" })
-  	ThreadsPad::JobReflectionLog.create({id: 4, job_reflection_id: 1, level: 100, msg: "1-4" })
-  	ThreadsPad::JobReflectionLog.create({id: 5, job_reflection_id: 1, level: 100, msg: "1-5" })
+  	ThreadsPad::JobReflectionLog.create({id: 1, group_id: 1, job_reflection_id: 1, level: 100, msg: "1-1" })
+  	ThreadsPad::JobReflectionLog.create({id: 2, group_id: 1, job_reflection_id: 1, level: 100, msg: "1-2" })
+  	ThreadsPad::JobReflectionLog.create({id: 3, group_id: 1, job_reflection_id: 1, level: 100, msg: "1-3" })
+  	ThreadsPad::JobReflectionLog.create({id: 4, group_id: 1, job_reflection_id: 1, level: 100, msg: "1-4" })
+  	ThreadsPad::JobReflectionLog.create({id: 5, group_id: 1, job_reflection_id: 1, level: 100, msg: "1-5" })
   	@session = {}
 
   end
@@ -32,10 +32,10 @@ class ThreadsPadHelperTest < ActiveSupport::TestCase
 
   end
   test 'filter_job_logs_diff_job_refl' do
-  	l21 = ThreadsPad::JobReflectionLog.create({id: 6, job_reflection_id: 2, level: 100, msg: "2-1" })
-  	l22 = ThreadsPad::JobReflectionLog.create({id: 7, job_reflection_id: 2, level: 100, msg: "2-2" })
+  	l21 = ThreadsPad::JobReflectionLog.create({id: 6, group_id: 2, job_reflection_id: 2, level: 100, msg: "2-1" })
+  	l22 = ThreadsPad::JobReflectionLog.create({id: 7, group_id: 2, job_reflection_id: 2, level: 100, msg: "2-2" })
 
-  	l23 = ThreadsPad::JobReflectionLog.create({id: 8, job_reflection_id: 2, level: 100, msg: "2-3" })
+  	l23 = ThreadsPad::JobReflectionLog.create({id: 8, group_id: 2, job_reflection_id: 2, level: 100, msg: "2-3" })
 
   	list2 = [l21, l22]
   	list = ThreadsPad::JobReflectionLog.all[0],  ThreadsPad::JobReflectionLog.all[1]

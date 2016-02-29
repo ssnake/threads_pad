@@ -135,7 +135,7 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	pad << TestWork.new(0, 100, true)
   	pad.start
   	pad.wait
-  	assert pad.logs.count > 0
+  	assert pad.logs.count > 0, ThreadsPad::JobReflectionLog.all
   	assert pad.logs.first.created_at != nil
   end
   test "sequence" do
@@ -163,5 +163,11 @@ class ThreadsPadTest < ActiveSupport::TestCase
   test 'empty' do
     assert_equal 0, ThreadsPad::JobReflection.all.reload.count
     assert ThreadsPad::Pad.empty?
+  end
+  test 'logs3' do
+      pad = ThreadsPad::Pad.new
+      pad.start
+      pad.log 'test'
+      assert_equal 1, pad.logs.count
   end
 end

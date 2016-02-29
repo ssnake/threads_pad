@@ -13,6 +13,7 @@ module ThreadsPad
 				@list = JobReflection.where('group_id = ?', id)
 
 			end
+			@grp_id = nil
 		end
 		
 		def << job
@@ -27,14 +28,14 @@ module ThreadsPad
 			@list.count == 0
 		end
 		def start
-			grp_id = get_group_id 
+			@grp_id = get_group_id 
 			@list.each do |jr|
-				jr.group_id = grp_id
+				jr.group_id = @grp_id
 				jr.started = true
 				jr.save
 				jr.start
 			end
-			grp_id
+			@grp_id
 		end
 		def wait
 			ThreadsPad::Pad.wait @list
@@ -53,13 +54,14 @@ module ThreadsPad
 			ThreadsPad::Pad.terminate @list
 		end
 		def logs
-			ret = []
-			@list.each do |jr|
-				jr.job_reflection_logs.each { |l| ret << l}
-			end
-			ret
+			raise 'Group id is not defined' if @grp_id.nil?
+			JobReflectionLog.where('group_id = ?', @grp_id)
 		end
+		def log msg, level=0
+			raise 'Group id is not defined' if @grp_id.nil?
+			JobReflectionLog.create! group_id: @grp_id, msg: msg, level: level
 
+		end
 		class << self
 
 			def << job
@@ -201,7 +203,7 @@ module ThreadsPad
 			@job_reflection.terminated
 		end
 		def debug msg
-			@job_reflection.job_reflection_logs.create(level: 0, msg: msg) if @job_reflection
+			@job_reflection.job_reflection_logs.create(level: 0, msg: msg, group_id: @job_reflection.group_id) if @job_reflection
 		rescue => e
 			puts "debug: #{e.message}"
 		end
