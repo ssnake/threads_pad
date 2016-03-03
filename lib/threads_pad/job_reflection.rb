@@ -12,7 +12,7 @@ module ThreadsPad
 				@iteration_sync = 100
 			end
 
-			job.job_reflection = self if job.present?
+			@job.job_reflection = self if @job.present?
 			super()
 			init_attributes
 
@@ -25,10 +25,7 @@ module ThreadsPad
 			self.destroy_on_finish = false
 			self.save!			
 		end
-		def before_work job
-		end
-		def after_work job
-		end
+
 		def start
 			@job.start
 		end

@@ -11,7 +11,7 @@ module ThreadsPad
 			@grp_id = id
 			if id 
 				@group_id = id
-				@list = JobReflection.where('group_id = ?', id)
+				@list = JobReflection.where('group_id = ?', id).to_a
 
 			end
 			
@@ -30,10 +30,11 @@ module ThreadsPad
 		end
 		def start
 			@grp_id = get_group_id 
+			destroy_old
 			@list.each do |jr|
 				jr.group_id = @grp_id
 				jr.started = true
-				jr.save
+				jr.save!
 				jr.start
 			end
 			@grp_id
@@ -43,6 +44,12 @@ module ThreadsPad
 		end
 		def destroy_all
 			ThreadsPad::Pad.destroy_all @list
+		end
+		def destroy_old
+			@list.delete_if do |jr|
+				jr.destroy if jr.started && jr.done && !jr.thread_alive?
+			end
+			
 		end
 		def current
 			ThreadsPad::Pad.current @list
@@ -118,7 +125,7 @@ module ThreadsPad
 				list = JobReflection.all if list.nil?
 				res = true
 				list.each do |jr|
-					res &&= jr.done
+					res &&= jr.done || !jr.thread_alive?
 				end
 				res
 			end

@@ -71,8 +71,8 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	pad << TestWork.new(5, count)
   	pad << TestWork.new(10, count)
   	id = pad.start
-  	new_pad = ThreadsPad::Pad.new id
   	sleep 0.1
+      new_pad = ThreadsPad::Pad.new id
   	assert new_pad.current > 0.0
   	new_pad.wait
   	assert_equal 100, new_pad.current, ThreadsPad::JobReflection.all.inspect
@@ -174,5 +174,18 @@ class ThreadsPadTest < ActiveSupport::TestCase
     ThreadsPad::JobReflectionLog.create({id: 1, group_id: 1, job_reflection_id: 1, level: 100, msg: "1-1" })
     pad = ThreadsPad::Pad.new 1
     assert_equal 1, pad.logs.count
+  end
+  test 'start with old jr' do
+    jr = ThreadsPad::JobReflection.new nil
+    jr.id = 1
+    jr.done = true
+    jr.started = true
+    jr.group_id = 1
+    jr.save!
+    pad = ThreadsPad::Pad.new 1
+    assert !pad.empty?
+    pad << TestWork.new(0, 1)
+    pad.start
+    assert_equal 1, ThreadsPad::JobReflection.all.reload.count
   end
 end
