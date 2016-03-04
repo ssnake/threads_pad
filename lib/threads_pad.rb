@@ -62,11 +62,11 @@ module ThreadsPad
 			ThreadsPad::Pad.terminate @list
 		end
 		def logs
-			raise 'Group id is not defined' if @grp_id.nil?
+			return [] if @grp_id.nil?
 			JobReflectionLog.where('group_id = ?', @grp_id)
 		end
 		def log msg, level=0
-			raise 'Group id is not defined' if @grp_id.nil?
+			return if @grp_id.nil?
 			JobReflectionLog.create! group_id: @grp_id, msg: msg, level: level
 
 		end
