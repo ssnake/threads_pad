@@ -1,6 +1,8 @@
 # ThreadsPad
 
-A helpful tool for paralleling and asynchronous processing for Rails .
+A helpful tool for paralleling and asynchronous processing for Rails
+
+**Important! It runs your work in threads**
 
 ## Installation
 
@@ -31,3 +33,62 @@ These migrations will create two tables:
 
 * threads_pad_jobs - it will contain all meta data for your job like: current, min, max, started, destroy_on_finish etc
 * threads_pad_job_logs - it will contain all logs are connected to your job.
+
+
+## Getting started
+
+Let's say we need to parse a csv file(demo.csv). To make it faster we can devide parsing process. We will run a few worker and each of them will parse its own range in a file.
+
+First of all you have to create a class with base class **ThreadsPad::Job**  and define *work* method. This method will be run in *Thread*
+
+    class CsvParsingJob << ThreadsPad::Job
+      def initialize filename, start_row, count
+        self.max = count
+        @start_row = start_row
+        ...
+      end
+      
+      def work
+        ...
+        while self.current < @start_row + self.max do
+            #parsing
+            ....
+            break if self.terminated?
+            self.current += 1
+        end
+        ...
+      end
+    end
+    
+Base class **ThreadsPad::Job** has following methods:
+
+* #max - specifies max position of the progress 
+* #min - specifies min position of then progress 
+* #current - specifies current position of the progress 
+* #terminated? - check if a job is terminated
+* #debug(msg) - log a msg
+
+Ok, now it's time to run a job. Let's say our *demo.csv* has 10000 lines.
+
+    pad = ThreadsPad::Pad.new
+    pad << YourJob.new 'demo.csv', 1, 5000
+    pad << YourJob.new 'demo.csv', 5001, 5000
+    @job_id = pad.start
+
+
+Once we memorize *@job_id* we can use it to check status of parsing process:
+
+    pad = ThreadsPad::Pad.new @job_id
+    puts 'The file has parsed' if @pad.done?
+    
+The *ThreadsPad::Pad* class has following methods:
+
+* #current - get a current position of the progress 
+* #done? - check if a process is finished/terminated or dead
+* #log - log a msg
+* #logs - get logs for a current job
+* #terminate - terminate a current job
+* ::terminate - terminate all jobs which are in database
+* #destroy_all - remove from db all records that belongs to a current job. If a job is not finished yet, it will be marked as *destroy_on_finish*. Once it get finished it will destroy itself.
+* 
+    
