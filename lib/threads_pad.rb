@@ -119,7 +119,7 @@ module ThreadsPad
 				list.each do |jr|
 					res += (jr.current.to_f-jr.min)/(jr.max-jr.min) * 100.0 / list.count
 				end
-				res
+				res.round
 			end
 			def done? list =nil
 				list = JobReflection.all if list.nil?
