@@ -2,7 +2,7 @@
 
 A helpful tool for paralleling and asynchronous processing for Rails
 
-**Important! It runs your work in threads**
+**Note!** It works with threads. Be aware not all ruby intreperters fully support threads. 
 
 ## Installation
 
@@ -117,7 +117,7 @@ Let's say we have *status* method in our rails controller and we have a html pag
 *filter_job_logs* is a view helper. It prevents from getting logs into html page more then one. 
 
 **Important!** 
-It works with rails *session*. So you must specify *csrf* in your ajax request. In other case your page will flooded with logs:
+It works with rails *session*. So you must specify *csrf* in your ajax request. In other case your page will be flooded with logs:
     
     $.ajax({
 		url:"/main/status",
