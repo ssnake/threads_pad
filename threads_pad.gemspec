@@ -7,11 +7,11 @@ require "threads_pad/version"
 Gem::Specification.new do |s|
   s.name        = "threads_pad"
   s.version     = ThreadsPad::VERSION
-  s.authors     = [""]
+  s.authors     = ["Max Nedelchev"]
   s.email       = ["max@snakelab.cc"]
-  s.homepage    = "http://github.com"
-  s.summary     = "tool for launching parallel processes"
-  s.description = "none"
+  s.homepage    = "https://github.com/ssnake/threads_pad"
+  s.summary     = "A helpful tool for paralleling and asynchronous processing for Rails"
+  s.description = "A helpful tool for paralleling and asynchronous processing for Rails"
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
