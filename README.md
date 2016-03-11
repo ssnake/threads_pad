@@ -4,7 +4,7 @@ A helpful tool for paralleling and asynchronous processing for Rails
 
 **Note!** It works with threads. Be aware thatnot all ruby intreperters fully support threads. 
 
-##[Demo](https://tpd-demo.herokuapp.com/)
+##[Demo](https://tpd-demo.herokuapp.com/) (JRuby)
 
 ## Installation
 
