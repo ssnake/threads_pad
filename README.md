@@ -2,7 +2,9 @@
 
 A helpful tool for paralleling and asynchronous processing for Rails
 
-**Note!** It works with threads. Be aware not all ruby intreperters fully support threads. 
+**Note!** It works with threads. Be aware thatnot all ruby intreperters fully support threads. 
+
+##[Demo](https://tpd-demo.herokuapp.com/)
 
 ## Installation
 
@@ -90,9 +92,9 @@ The *ThreadsPad::Pad* class has following methods:
 * #terminate - terminate a current job
 * ::terminate - terminate all jobs which are in database
 * #destroy_all - remove from db all records that belongs to a current job. If a job is not finished yet, it will be marked as *destroy_on_finish*. Once it get finished it will destroy itself.
-* 
-    
-## Logs 
+
+
+### Getting a status
 
 Let's say we have *status* method in our rails controller and we have a html page that periodically call *status* method via *xhr*. The coffee script file might look like this:
 
@@ -126,3 +128,4 @@ It works with rails *session*. So you must specify *csrf* in your ajax request. 
 			beforeSend: (xhr)->
 	    		xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))
 		})
+
