@@ -39,7 +39,7 @@ These migrations will create two tables:
 
 Let's say we need to parse a csv file(demo.csv). To make it faster we can devide parsing process. We will run a few worker and each of them will parse its own range in a file.
 
-First of all you have to create a class with base class **ThreadsPad::Job**  and define *work* method. This method will be run in *Thread*
+First of all you have to create a class with base class *ThreadsPad::Job*  and define *work* method. This method will be run in *Thread*
 
     class CsvParsingJob << ThreadsPad::Job
       def initialize filename, start_row, count
@@ -60,7 +60,7 @@ First of all you have to create a class with base class **ThreadsPad::Job**  and
       end
     end
     
-Base class **ThreadsPad::Job** has following methods:
+Base class *ThreadsPad::Job* has following methods:
 
 * #max - specifies max position of the progress 
 * #min - specifies min position of then progress 
@@ -92,3 +92,37 @@ The *ThreadsPad::Pad* class has following methods:
 * #destroy_all - remove from db all records that belongs to a current job. If a job is not finished yet, it will be marked as *destroy_on_finish*. Once it get finished it will destroy itself.
 * 
     
+## Logs 
+
+Let's say we have *status* method in our rails controller and we have a html page that periodically call *status* method via *xhr*. The coffee script file might look like this:
+
+    $('#percents').html("<%= @pad.current%>")
+    <% if @pad.done? %>
+        <% @pad.log "Done at #{Time.now}"%>
+    <% end %>
+    <% filter_job_logs(@pad.logs).each do |log|%>
+    	$('#logs').append("<%= "#{log[:id]}\t#{log[:msg]}\<br\>".html_safe %>")
+    <%end%>
+    <% if @pad.done? %>
+    	#disable timer
+    	...
+    <%end%>
+
+*@pad.logs* is collection of objects *ThreadsPad::JobReflectionLog*(with ancestor as *ActiveRecord::Base*). This object has following fields:
+
+* level - specifies importance of msg
+* msg -  message itself
+* group_id - specifies to which job it belongs (in our case it's *@job_id*)
+
+*filter_job_logs* is a view helper. It prevents from getting logs into html page more then one. 
+
+**Important!** 
+It works with rails *session*. So you must specify *csrf* in your ajax request. In other case your page will flooded with logs:
+    
+    $.ajax({
+		url:"/main/status",
+		dataType: 'script'
+		settings: 
+			beforeSend: (xhr)->
+	    		xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))
+		})
