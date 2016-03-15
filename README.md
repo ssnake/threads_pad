@@ -2,7 +2,7 @@
 
 A helpful tool for paralleling and asynchronous processing for Rails
 
-**Note!** It works with threads. Be aware thatnot all ruby intreperters fully support threads. 
+**Note!** It works with threads. Be aware that not all ruby intreperters fully support threads. 
 
 ##[Demo](https://tpd-demo.herokuapp.com/) (JRuby)
 
@@ -39,7 +39,7 @@ These migrations will create two tables:
 
 ## Getting started
 
-Let's say we need to parse a csv file(demo.csv). To make it faster we can devide parsing process. We will run a few worker and each of them will parse its own range in a file.
+Let's say we need to parse a csv file(demo.csv). To make it faster we can devide parsing process. We will run a few workers and each of them will parse its own range in a file.
 
 First of all you have to create a class with base class *ThreadsPad::Job*  and define *work* method. This method will be run in *Thread*
 
