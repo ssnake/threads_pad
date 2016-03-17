@@ -110,13 +110,13 @@ Let's say we have *status* method in our rails controller and we have a html pag
     	...
     <%end%>
 
-*@pad.logs* is collection of objects *ThreadsPad::JobReflectionLog*(with ancestor as *ActiveRecord::Base*). This object has following fields:
+*@pad.logs* is collection of objects *ThreadsPad::JobReflectionLog*(inherited from *ActiveRecord::Base*). This object has following fields:
 
 * level - specifies importance of msg
 * msg -  message itself
 * group_id - specifies to which job it belongs (in our case it's *@job_id*)
 
-*filter_job_logs* is a view helper. It prevents from getting logs into html page more then one. 
+*filter_job_logs* is a view helper. It prevents from getting logs into html page more then once. 
 
 **Important!** 
 It works with rails *session*. So you must specify *csrf* in your ajax request. In other case your page will be flooded with logs:
