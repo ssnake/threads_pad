@@ -74,8 +74,11 @@ module ThreadsPad
 
 			def << job
 				refl = JobReflection.new job
+				
 				job.start
 				return refl
+				puts "JR count #{JobReflection.count}"
+
 			end
 			def destroy_all list=nil
 				JobReflectionLog.destroy_all  if list.nil?
@@ -161,21 +164,23 @@ module ThreadsPad
 			@thread = Thread.new(&(proc{self.wrapper}))
 		end
 		def wrapper
-
+			
 			#ActiveRecord::Base.forbid_implicit_checkout_for_thread!
 			ActiveRecord::Base.connection_pool.with_connection do 
 				begin
+					
 					@current = 0.0
 					@job_reflection.done = false
 					@job_reflection.terminated = false
 					@job_reflection.started = true
 					@job_reflection.thread_id = @thread.object_id.to_s
 					@job_reflection.save!
-
+					
 				
 					@job_reflection.result = work
 				rescue => e
-					puts "ThreadsPad::Job#wrapper: #{e.message} #{e.backtrace.inspect}"
+					puts "ThreadsPad::Job#wrapper: #{e.message}"
+					e.backtrace.each {|msg| puts msg}
 				ensure
 					@job_reflection.done = true
 					if @job_reflection.destroy_on_finish
