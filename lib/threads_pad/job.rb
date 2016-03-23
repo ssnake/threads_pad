@@ -6,8 +6,52 @@ module ThreadsPad
 		def start
 			@thread = Thread.new(&(proc{self.wrapper}))
 		end
+		
+		
+		def work
+		end
+
+		def min=value
+			@job_reflection.min = value
+			@job_reflection.save!
+		end
+		def min
+			@job_reflection.min
+		end
+		def max 
+			@job_reflection.max
+		end
+		def max=value
+			@job_reflection.max = value
+			@job_reflection.save!
+		end
+		def current=value
+			@current = value
+			check_events
+			return if @job_reflection.nil?
+			@job_reflection.current = @current
+			@job_reflection.save_if_needed
+		end
+		def current 
+			@current
+		end
+
+		def terminated?
+			return false if @job_reflection.nil?
+			@job_reflection.reload_if_needed
+			@job_reflection.terminated
+		end
+		def debug msg
+			@job_reflection.job_reflection_logs.create(level: 0, msg: msg, group_id: @job_reflection.group_id) if @job_reflection
+		rescue => e
+			puts "debug: #{e.message}"
+		end
+		def add_event cond, block
+			@events = [] if @events.nil?
+			@events << [cond, block]
+		end
+
 		def wrapper
-			
 			#ActiveRecord::Base.forbid_implicit_checkout_for_thread!
 			ActiveRecord::Base.connection_pool.with_connection do 
 				begin
@@ -35,42 +79,22 @@ module ThreadsPad
 			end
 			ActiveRecord::Base.connection.close
 		end
-		def work
+	private
+		def check_events
+			return if @events.nil?
+			@events.each do |event|
+				cond = event.first
+				block = event.last
+				#puts "check events"
+				#puts "cond #{cond.class.name}"
+				if cond.is_a?(Range) && cond.include?(@current) ||
+					cond.is_a?(Fixnum) && (cond == @current)
+					block.call self
+					@events.delete event
+				
+				end
+			end
 		end
-		def min=value
-			@job_reflection.min = value
-			@job_reflection.save!
-		end
-		def min
-			@job_reflection.min
-		end
-		def max 
-			@job_reflection.max
-		end
-		def max=value
-			@job_reflection.max = value
-			@job_reflection.save!
-		end
-		def current=value
-			@current = value
-			return if @job_reflection.nil?
-			@job_reflection.current = @current
-			@job_reflection.save_if_needed
-		end
-		def current 
-			@current
-		end
-
-		def terminated?
-			return false if @job_reflection.nil?
-			@job_reflection.reload_if_needed
-			@job_reflection.terminated
-		end
-		def debug msg
-			@job_reflection.job_reflection_logs.create(level: 0, msg: msg, group_id: @job_reflection.group_id) if @job_reflection
-		rescue => e
-			puts "debug: #{e.message}"
-		end
-	
+				
 	end
 end

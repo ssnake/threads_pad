@@ -71,6 +71,11 @@ module ThreadsPad
 			JobReflectionLog.create! group_id: @grp_id, msg: msg, level: level
 
 		end
+		def on cond, &block
+			job = @list.first.job
+			job.add_event cond, block
+		end
+
 		class << self
 
 			def << job
@@ -143,6 +148,7 @@ module ThreadsPad
 			def  empty?
 				JobReflection.count == 0
 			end
+
 		end
 	private
 		def get_group_id

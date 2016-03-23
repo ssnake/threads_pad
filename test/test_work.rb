@@ -6,12 +6,13 @@ class TestWork < ThreadsPad::Job
 	end
 
 	def work 
-		#puts "started worker"
+		
 		sum= @start
 		self.max = @count
 		@count.times do 
 			sum += 1
 			self.current+=1
+		
 			debug "current #{self.current}" if @use_logs
 			if terminated?
 				puts "terminated"

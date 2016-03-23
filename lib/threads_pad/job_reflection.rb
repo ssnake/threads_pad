@@ -2,7 +2,7 @@ module ThreadsPad
 	class JobReflection < ActiveRecord::Base	
 		self.table_name = "threads_pad_jobs"
 		has_many :job_reflection_logs, dependent: :destroy
-
+		attr_accessor :job
 		def initialize job, **options
 			@job = job
 			@current_iteration = 0
