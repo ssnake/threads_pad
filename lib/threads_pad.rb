@@ -19,6 +19,7 @@ module ThreadsPad
 		end
 		
 		def << job
+			job.pad = self
 			refl = JobReflection.new job, @options
 			if @options[:destroy_on_finish]
 				refl.destroy_on_finish = true
@@ -56,8 +57,14 @@ module ThreadsPad
 			ThreadsPad::Pad.current @list
 			
 		end
-		def done?
-			ThreadsPad::Pad.done? @list
+		def done? **options
+			if options.key? :except
+				list = @list
+				list.delete options[:except]
+				ThreadsPad::Pad.done? list
+			else
+				ThreadsPad::Pad.done? @list
+			end
 		end
 		def terminate
 			ThreadsPad::Pad.terminate @list
@@ -79,7 +86,11 @@ module ThreadsPad
 				end
 			end
 		end
-
+		def calc_current
+			return nil if @list.nil?
+			list = @list.map {|jr| jr.job}
+			ThreadsPad::Pad.calc_current list
+		end
 		class << self
 
 			def << job
@@ -127,8 +138,12 @@ module ThreadsPad
 			end
 			def current list=nil
 				list = JobReflection.all if list.nil?
+				calc_current list
+				
+			end
+			def calc_current list
+				return nil if list.nil?
 				res = 0
-
 				list.each do |jr|
 					res += (jr.current.to_f-jr.min)/(jr.max-jr.min) * 100.0 / list.count
 				end

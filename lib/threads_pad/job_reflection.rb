@@ -3,6 +3,10 @@ module ThreadsPad
 		self.table_name = "threads_pad_jobs"
 		has_many :job_reflection_logs, dependent: :destroy
 		attr_accessor :job
+		#call back that is called after creation
+		after_create do 
+			thread_alive?
+		end
 		def initialize job, **options
 			@job = job
 			@current_iteration = 0
@@ -15,8 +19,9 @@ module ThreadsPad
 			@job.job_reflection = self if @job.present?
 			super()
 			init_attributes
-
+			
 		end
+
 		def init_attributes
 			self.current = 0
 			self.max = 100
@@ -47,7 +52,11 @@ module ThreadsPad
 		def thread_alive?
 			ret = false
 			Thread.list.each do |t|
-				ret = true if t.object_id.to_s == self.thread_id
+				if t.object_id.to_s == self.thread_id
+					ret = true 
+					#get our job from found thread
+					@job = t[:job]
+				end
 
 			end
 			ret

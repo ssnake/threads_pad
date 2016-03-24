@@ -26,49 +26,53 @@ class ThreadsPadEventTest < ActiveSupport::TestCase
     pad << TestWork.new(0, 500)
     #closure variable
     event_count = 0
-    puts "event count id #{event_count.object_id}"
-    puts "thread_id #{Thread.current.object_id}"
+    
+    
     pad.on(20..50) do |job|
-      puts "20..50 #{job.current}"
+      puts "20..50 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
       event_count += 1
-      puts "thread_id #{Thread.current.object_id}"
+      
     end
     pad.on(50..75) do 
-      puts "50..75"
+      puts "50..75 "
       event_count += 1
-      puts "thread_id #{Thread.current.object_id}"
+      
     end
     event_count = 0
     pad.on(75..100) do  |job|
-      puts "75..100 #{job.current} event count #{event_count}"
-      puts "event count id #{event_count.object_id}"
+      puts "75..100 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
+      
       event_count += 1
-      puts "thread_id #{Thread.current.object_id}"
+      
     end
     pad.on(0..5) do |job|
-      puts "0..5 #{job.current}"
+      puts "0..5 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
       event_count += 1
-      puts "thread_id #{Thread.current.object_id}"
+      
     end
     pad.on(6..10) do |job|
-      puts "6..10 #{job.current}"
+      puts "6..10 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
       event_count += 1
-      puts "thread_id #{Thread.current.object_id}"
+      
     end
     pad.on(10..20) do |job|
-      puts "10..20 #{job.current}"
+      puts "10..20 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
       event_count += 1
-      puts "thread_id #{Thread.current.object_id}"
+      
     end
     pad.on(100) do |job|
-      puts "finished #{job.current}"
+      puts "finished job.current #{job.current}, pad.calc_current #{pad.calc_current}"
       event_count += 1
-      puts "thread_id #{Thread.current.object_id}"
+      
+    end
+    pad.on(200) do |job|
+      puts "this should never happen job.current #{job.current}, pad.calc_current #{pad.calc_current}"
+      event_count += 1
+      
     end
     pad.start
     pad.wait
-    puts "event count #{event_count}"
-    puts "event count id #{event_count.object_id}"
+    assert pad.done?
     assert_equal 7, event_count
 
   end
