@@ -48,7 +48,7 @@ module ThreadsPad
 		end
 		def destroy_old
 			@list.delete_if do |jr|
-				jr.destroy if jr.started && jr.done && !jr.thread_alive?
+				jr.destroy if job_reflection_old?(jr)
 			end
 			
 		end
@@ -72,8 +72,12 @@ module ThreadsPad
 
 		end
 		def on cond, &block
-			job = @list.first.job
-			job.add_event cond, block
+			@list.each do |jr| 
+			  	if !job_reflection_old?(jr)
+					jr.job.add_event cond, block
+					return
+				end
+			end
 		end
 
 		class << self
@@ -151,6 +155,9 @@ module ThreadsPad
 
 		end
 	private
+		def job_reflection_old? jr
+			jr.started && jr.done && !jr.thread_alive?
+		end
 		def get_group_id
 			#(JobReflection.maximum("group_id") || 0) + 1
 			id = -1
