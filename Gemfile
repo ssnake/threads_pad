@@ -16,5 +16,8 @@ group :development, :test do
 	gem 'byebug'
 end
 gem 'pg'
+
+
+# gem 'activerecord-jdbcpostgresql-adapter'
 gem 'rails' , '~>4.2.5'
 
