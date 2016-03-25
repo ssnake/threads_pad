@@ -23,7 +23,7 @@ class ThreadsPadEventTest < ActiveSupport::TestCase
   test 'event1' do
     pad = ThreadsPad::Pad.new
     pad << TestWork.new(0, 500)
-    pad << TestWork.new(0, 500)
+    pad << TestWork.new(0, 50000)
     #closure variable
     event_count = 0
     
@@ -61,9 +61,14 @@ class ThreadsPadEventTest < ActiveSupport::TestCase
       
     end
     pad.on(100) do |job|
-      puts "finished job.current #{job.current}, pad.calc_current #{pad.calc_current}"
+      puts "100 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
       event_count += 1
       
+    end
+    
+    pad.on(:finish) do |job|
+      puts "finish #{job.current}, pad.calc_current #{pad.calc_current}"
+      event_count += 1
     end
     pad.on(200) do |job|
       puts "this should never happen job.current #{job.current}, pad.calc_current #{pad.calc_current}"
@@ -73,7 +78,7 @@ class ThreadsPadEventTest < ActiveSupport::TestCase
     pad.start
     pad.wait
     assert pad.done?
-    assert_equal 7, event_count
+    assert_equal 8, event_count
 
   end
 

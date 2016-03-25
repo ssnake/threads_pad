@@ -78,6 +78,8 @@ module ThreadsPad
 							Thread.pass
 							check_events
 						end
+#						if @events.include? :finish
+
 					end
 				rescue => e
 					puts "ThreadsPad::Job#wrapper: #{e.message}"
@@ -96,22 +98,23 @@ module ThreadsPad
 	private
 		def check_events
 			return if @events.nil? || @pad.nil?
-			@events.each do |event|
+			tmp_events = @events
+			tmp_events.each do |event|
 				cond = event.first
 				block = event.last
-				#puts "check events"
-				#puts "cond #{cond.class.name}"
+				
 				calc_current = @pad.calc_current
-				# puts "calc_current #{calc_current}"
-				# byebug if calc_current == 100
+				
 				if cond.is_a?(Range) && cond.include?(calc_current) ||
-					cond.is_a?(Fixnum) && (cond == calc_current)
+					cond.is_a?(Fixnum) && (cond == calc_current) ||
+					cond.is_a?(Symbol) && @pad.done?(except: @job_reflection) && (cond == :finish)
 					block.call self
 					@events.delete event
 				
 				end
 			end
 		end
+
 				
 	end
 end
