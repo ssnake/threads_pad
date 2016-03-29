@@ -70,7 +70,6 @@ module ThreadsPad
 					@job_reflection.thread_id = Thread.current.object_id.to_s
 					@job_reflection.save!
 					
-				
 					@job_reflection.result = work
 					unless @events.blank?
 						while !@pad.done? except: @job_reflection
@@ -97,17 +96,18 @@ module ThreadsPad
 		end
 	private
 		def check_events
-			return if @events.nil? || @pad.nil?
+			return  if @events.nil? || @pad.nil?
 			tmp_events = @events
 			tmp_events.each do |event|
 				cond = event.first
 				block = event.last
 				
 				calc_current = @pad.calc_current
-				
+				#puts "cond class name: #{cond.class.name}"
+				#puts "cond #{cond}, calc_current #{calc_current}"
 				if cond.is_a?(Range) && cond.include?(calc_current) ||
 					cond.is_a?(Fixnum) && (cond == calc_current) ||
-					cond.is_a?(Symbol) && @pad.done?(except: @job_reflection) && (cond == :finish)
+					cond.is_a?(Symbol) && @pad.done?(except: @job_reflection) && cond == :finish && calc_current >= 100
 					block.call self
 					@events.delete event
 				

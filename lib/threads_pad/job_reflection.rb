@@ -5,6 +5,7 @@ module ThreadsPad
 		attr_accessor :job
 		#call back that is called after creation
 		after_create do 
+			#find if existed thread is associated with this job_reflection and memorize job for thread[:job]
 			thread_alive?
 		end
 		def initialize job, **options
@@ -53,9 +54,10 @@ module ThreadsPad
 			ret = false
 			Thread.list.each do |t|
 				if t.object_id.to_s == self.thread_id
-					ret = true 
+					
 					#get our job from found thread
 					@job = t[:job]
+					ret = @job.present?
 				end
 
 			end

@@ -7,11 +7,12 @@ module ThreadsPad
 	class Pad
 		
 		def initialize id=nil, **options
+			
 			@options = options || {}
 			@list = []
 			@grp_id = id
 			if id 
-				@group_id = id
+				
 				@list = JobReflection.where('group_id = ?', id).to_a
 
 			end
@@ -59,9 +60,10 @@ module ThreadsPad
 		end
 		def done? **options
 			if options.key? :except
-				list = @list
+				list = @list.dup
 				list.delete options[:except]
 				ThreadsPad::Pad.done? list
+
 			else
 				ThreadsPad::Pad.done? @list
 			end
@@ -80,14 +82,17 @@ module ThreadsPad
 		end
 		def on cond, &block
 			@list.each do |jr| 
-			  	if !job_reflection_old?(jr)
+				old = job_reflection_old?(jr)
+				#puts "jr is old: #{jr.inspect}"  if old
+			  	if !old
 					jr.job.add_event cond, block
 					return
 				end
 			end
 		end
 		def calc_current
-			return nil if @list.nil?
+
+			return puts "calc_current is nil" && nil if @list.nil?
 			list = @list.map {|jr| jr.job}
 			ThreadsPad::Pad.calc_current list
 		end
@@ -146,8 +151,11 @@ module ThreadsPad
 				res = 0
 				list.each do |jr|
 					res += (jr.current.to_f-jr.min)/(jr.max-jr.min) * 100.0 / list.count
+					#puts "jr.current #{jr.current}"
 				end
-				res.round
+				#puts "list.count #{list.count}"
+				#puts "calc current raw #{res}"
+				return res.round
 			end
 			def done? list =nil
 				list = JobReflection.all if list.nil?
@@ -171,7 +179,8 @@ module ThreadsPad
 		end
 	private
 		def job_reflection_old? jr
-			jr.started && jr.done && !jr.thread_alive?
+			#this is cirtical part . it checks if job(via jr) is still working.
+			jr.started  && !jr.thread_alive?
 		end
 		def get_group_id
 			#(JobReflection.maximum("group_id") || 0) + 1

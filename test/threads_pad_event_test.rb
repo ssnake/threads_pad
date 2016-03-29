@@ -19,68 +19,85 @@ class ThreadsPadEventTest < ActiveSupport::TestCase
   #   sleep 0.1   
   #   assert !ThreadsPad::Pad.done?, ThreadsPad::JobReflection.all.inspect
   # end
-
-  test 'event1' do
+  test 'event2' do
     pad = ThreadsPad::Pad.new
     pad << TestWork.new(0, 500)
-    pad << TestWork.new(0, 50000)
-    #closure variable
-    event_count = 0
+    id = pad.start
+    pad.wait
     
+    pad = ThreadsPad::Pad.new id
+
+    pad << TestWork.new(0, 500)
     
-    pad.on(20..50) do |job|
-      puts "20..50 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
-      event_count += 1
-      
-    end
-    pad.on(50..75) do 
-      puts "50..75 "
-      event_count += 1
-      
-    end
-    event_count = 0
-    pad.on(75..100) do  |job|
-      puts "75..100 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
-      
-      event_count += 1
-      
-    end
-    pad.on(0..5) do |job|
-      puts "0..5 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
-      event_count += 1
-      
-    end
-    pad.on(6..10) do |job|
-      puts "6..10 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
-      event_count += 1
-      
-    end
-    pad.on(10..20) do |job|
-      puts "10..20 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
-      event_count += 1
-      
-    end
-    pad.on(100) do |job|
-      puts "100 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
-      event_count += 1
-      
-    end
-    
-    pad.on(:finish) do |job|
-      puts "finish #{job.current}, pad.calc_current #{pad.calc_current}"
-      event_count += 1
-    end
-    pad.on(200) do |job|
-      puts "this should never happen job.current #{job.current}, pad.calc_current #{pad.calc_current}"
-      event_count += 1
-      
-    end
+    ecount = 0
+    pad.on(5) { ecount +=1}
+    pad.on(15) { ecount +=1}
+    pad.on(100) { ecount +=1}
     pad.start
     pad.wait
-    assert pad.done?
-    assert_equal 8, event_count
-
+    assert_equal 3, ecount
   end
+  # test 'event1' do
+  #   pad = ThreadsPad::Pad.new
+  #   pad << TestWork.new(0, 500)
+  #   pad << TestWork.new(0, 50000)
+  #   #closure variable
+  #   event_count = 0
+    
+    
+  #   pad.on(20..50) do |job|
+  #     puts "20..50 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
+  #     event_count += 1
+      
+  #   end
+  #   pad.on(50..75) do 
+  #     puts "50..75 "
+  #     event_count += 1
+      
+  #   end
+  #   event_count = 0
+  #   pad.on(75..100) do  |job|
+  #     puts "75..100 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
+      
+  #     event_count += 1
+      
+  #   end
+  #   pad.on(0..5) do |job|
+  #     puts "0..5 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
+  #     event_count += 1
+      
+  #   end
+  #   pad.on(6..10) do |job|
+  #     puts "6..10 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
+  #     event_count += 1
+      
+  #   end
+  #   pad.on(10..20) do |job|
+  #     puts "10..20 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
+  #     event_count += 1
+      
+  #   end
+  #   pad.on(100) do |job|
+  #     puts "100 job.current #{job.current}, pad.calc_current #{pad.calc_current}"
+  #     event_count += 1
+      
+  #   end
+    
+  #   pad.on(:finish) do |job|
+  #     puts "finish #{job.current}, pad.calc_current #{pad.calc_current}"
+  #     event_count += 1
+  #   end
+  #   pad.on(200) do |job|
+  #     puts "this should never happen job.current #{job.current}, pad.calc_current #{pad.calc_current}"
+  #     event_count += 1
+      
+  #   end
+  #   pad.start
+  #   pad.wait
+  #   assert pad.done?
+  #   assert_equal 8, event_count
+
+  # end
 
 
 end
