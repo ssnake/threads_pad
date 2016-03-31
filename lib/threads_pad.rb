@@ -45,6 +45,9 @@ module ThreadsPad
 		def wait
 			ThreadsPad::Pad.wait @list
 		end
+		def wait_all
+			ThreadsPad::Pad.wait @list, true
+		end
 		def destroy_all
 			ThreadsPad::Pad.destroy_all @list
 		end
@@ -120,7 +123,8 @@ module ThreadsPad
 
 			end
 			def wait list=nil, wait_for_destroy_on_finish=false
-				sleep 0.1 # needed to be sure other threads are started
+				#sleep 0.1 # needed to be sure other threads are started
+				Thread.pass
 				running = true
 				list = JobReflection.all if list.nil?
 				while running do
@@ -128,14 +132,22 @@ module ThreadsPad
 					list.each do |jr|
 						begin
 							jr.reload
-							running = running || jr.thread_alive? && !jr.done && jr.started && (wait_for_destroy_on_finish || !jr.destroy_on_finish)
+							r = jr.thread_alive? && !jr.done && jr.started && (wait_for_destroy_on_finish || !jr.destroy_on_finish)
+							#puts "jr: #{jr.inspect}" if !r
+							running = running || r
 						rescue ActiveRecord::RecordNotFound
 						end
 					end
 					#puts "waiting: #{list.inspect}"
 
-					sleep 0.3
+					#sleep 0.3
+					Thread.pass
 				end
+				# puts "Is main thread" if Thread.current == Thread.main
+				# puts "Threads:"
+				# Thread.list.each { |t| puts "Thread_id: #{t.object_id}"} 
+				# puts "wait is done:"
+				# list.each {|jr| puts "alive? #{jr.thread_alive?} |||| #{jr.inspect}"}
 
 			end
 			def wait_all list=nil
@@ -161,6 +173,7 @@ module ThreadsPad
 				list = JobReflection.all if list.nil?
 				res = true
 				list.each do |jr|
+
 					res &&= jr.done || !jr.thread_alive?
 				end
 				res

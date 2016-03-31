@@ -29,6 +29,7 @@ Rake::TestTask.new(:test) do |t|
   t.pattern = 'test/**/*_test.rb'
   #t.pattern = 'test/threads_pad_helper_test.rb'
   #t.pattern = 'test/threads_pad_event_test.rb'
+  t.pattern = 'test/threads_pad2_test.rb'
   t.verbose = false
 end
 

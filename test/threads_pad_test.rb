@@ -26,6 +26,7 @@ class ThreadsPadTest < ActiveSupport::TestCase
   test "workflow" do
     # skip
     ThreadsPad::Pad<< TestWork.new(0, 5)
+    sleep 0.5
     assert_equal 1, ThreadsPad::JobReflection.all.count
     ThreadsPad::Pad.wait
 
@@ -49,7 +50,7 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	pad << TestWork.new(5, count)
   	pad << TestWork.new(10, count)
   	id = pad.start
-  	sleep 0.1
+  	sleep 0.5
       new_pad = ThreadsPad::Pad.new id
   	assert new_pad.current > 0.0
   	new_pad.wait
@@ -92,7 +93,8 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	pad.start
   	sleep 0.5
   	pad.terminate
-  	pad.wait
+  	pad.wait_all
+      sleep 0.5 
   	assert_equal 0, ThreadsPad::JobReflection.all.reload.count
   end
   test "logs" do
@@ -100,6 +102,7 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	assert ThreadsPad::JobReflection.all.reload.count == 0
   	assert ThreadsPad::JobReflectionLog.all.reload.count == 0
   	ThreadsPad::Pad << TestWork.new(0, 100, true)	
+       sleep 0.5
   	ThreadsPad::Pad.wait
   	assert ThreadsPad::JobReflection.all.reload.count > 0
   	assert ThreadsPad::JobReflectionLog.all.reload.count > 0
@@ -112,6 +115,7 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	pad = ThreadsPad::Pad.new 
   	pad << TestWork.new(0, 100, true)
   	pad.start
+      sleep 0.5
   	pad.wait
   	assert pad.logs.count > 0, ThreadsPad::JobReflectionLog.all
   	assert pad.logs.first.created_at != nil
@@ -121,6 +125,7 @@ class ThreadsPadTest < ActiveSupport::TestCase
   	pad = ThreadsPad::Pad.new
       pad << TestWork.new(0, 100000)
       grp_id =pad.start
+      sleep 0.5
       pad2 = ThreadsPad::Pad.new
       pad2 << TestWork.new(0, 100)
   	assert_not_equal grp_id, pad2.start

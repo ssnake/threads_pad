@@ -36,10 +36,15 @@ module ThreadsPad
 			@job.start
 		end
 		def save_if_needed
-			@current_iteration += 1
-			if @current_iteration > @iteration_sync
-				@current_iteration = 0
-				save!
+			cur = self.current
+			begin
+				@current_iteration += 1
+				if @current_iteration > @iteration_sync
+					@current_iteration = 0
+					save!
+				end
+			ensure
+				self.current = cur
 			end
 
 		end
@@ -51,6 +56,8 @@ module ThreadsPad
 			end		
 		end
 		def thread_alive?
+			#this is needed to overcome issue when pad.wait is called right afte pad.start
+			#return true if self.thread_id.nil?
 			ret = false
 			Thread.list.each do |t|
 				if t.object_id.to_s == self.thread_id
