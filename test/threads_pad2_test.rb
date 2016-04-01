@@ -20,16 +20,16 @@ class ThreadsPad2Test < ActiveSupport::TestCase
   	#ThreadsPad::JobReflectionLog.destroy_all
       #puts "finish teardown"
   end
-  test "saving inside job" do 
-    pad = ThreadsPad::Pad.new
-    pad << TestWork.new(0, 333, true)
-    pad << TestWork.new(0, 333, true)
-    pad << TestWork.new(0, 334, true)
-    pad.start
-    sleep 0.5
-    pad.wait
-    assert_equal 1000, ThreadsPad::JobReflectionLog.count
-  end
+  # test "saving inside job" do 
+  #   pad = ThreadsPad::Pad.new
+  #   pad << TestWork.new(0, 333, true)
+  #   pad << TestWork.new(0, 333, true)
+  #   pad << TestWork.new(0, 334, true)
+  #   pad.start
+  #   sleep 0.5
+  #   pad.wait
+  #   assert_equal 1000, ThreadsPad::JobReflectionLog.count
+  # end
   test "saving inside job and on finish event" do 
     pad = ThreadsPad::Pad.new
     pad << TestWork.new(0, 333, true)

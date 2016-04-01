@@ -71,6 +71,13 @@ module ThreadsPad
 			ret
 
 		end
+		def reload
+			if @job.present?
+				@job.sync { super}
+			else
+				super
+			end
+		end
 
 	end
 end

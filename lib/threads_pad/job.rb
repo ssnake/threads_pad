@@ -83,21 +83,18 @@ module ThreadsPad
 					@job_reflection.terminated = false
 					@job_reflection.started = true
 					@job_reflection.thread_id = Thread.current.object_id.to_s
-					ActiveRecord::Base.connection_pool.with_connection do 
-						@job_reflection.save!
-					end
+					
+					@job_reflection.save!
+					
 				end
 					ActiveRecord::Base.connection_pool.with_connection do 
 						@job_reflection.result  = work
 					end
 
-				sync do	
-					ActiveRecord::Base.connection_pool.with_connection do 
-						
-						unless @events.blank?
-							@job_reflection.current = @current
-							@job_reflection.save!
-						end
+				sync do			
+					unless @events.blank?
+						@job_reflection.current = @current
+						@job_reflection.save!
 					end
 				end
 
@@ -105,39 +102,43 @@ module ThreadsPad
 					while !@pad.done? except: @job_reflection
 
 						Thread.pass
+						sleep 0.5 #this sleep is important. It makes impact on events. Some time events block doesn't see changes in DB made from other threads
 						check_events
 					end
 				end
 				log "current1: #{@current}"
 				log "jr.current1: #{@job_reflection.current}"	
 			rescue => e
+				puts "ThreadsPad::Job#wrapper:  #{@current}"
+				#puts "ThreadsPad::Job#wrapper:  #{@job_reflection.current}"	
 				puts "ThreadsPad::Job#wrapper: #{e.message}"
+
 				e.backtrace.each {|msg| puts msg}
 			ensure
 				begin
 					sync do
-						ActiveRecord::Base.connection_pool.with_connection do  
+						
 
-							@job_reflection.done = true
-							log "jr.current11: #{@job_reflection.inspect}"	
-							log "current2: #{@current}"
+						@job_reflection.done = true
+						log "jr.current11: #{@job_reflection.inspect}"	
+						log "current2: #{@current}"
 
+						@job_reflection.current = @current
+						if @job_reflection.destroy_on_finish
+							log "destroy_on_finish"
+							@job_reflection.destroy
+						else
+							log "jr.current2: #{@job_reflection.inspect}"	
+							
+							#JobReflection.connection.commit_db_transaction
+							@job_reflection.save!
+							#this is workarround. I dunno why but when It saves it
+							#@job_reflection get wierd/old attributes. 
 							@job_reflection.current = @current
-							if @job_reflection.destroy_on_finish
-								log "destroy_on_finish"
-								@job_reflection.destroy
-							else
-								log "jr.current2: #{@job_reflection.inspect}"	
-								
-								#JobReflection.connection.commit_db_transaction
-								@job_reflection.save!
-								#this is workarround. I dunno why but when It saves it
-								#@job_reflection get wierd/old attributes. 
-								@job_reflection.current = @current
-								@job_reflection.save
-								log "jr.current3: #{@job_reflection.inspect}"	
-							end
+							@job_reflection.save
+							log "jr.current3: #{@job_reflection.inspect}"	
 						end
+					
 					end
 				rescue => e
 					puts "ThreadsPad::Job#wrapper2: #{e.message}"
@@ -150,29 +151,36 @@ module ThreadsPad
 			ActiveRecord::Base.connection.close
 
 		end
-	private
 		def sync
-			# @cs = Mutex.new if @cs.nil?
-			# @cs.synchronize do
-				yield
-			# end
+			@cs = Mutex.new if @cs.nil?
+			ActiveRecord::Base.connection_pool.with_connection do 
+				if @cs.owned?
+					yield
+				else
+					@cs.synchronize {	yield}
+				end
+			end
 		end
+	private
 		def check_events
 			return  if @events.nil? || @pad.nil?
-			tmp_events = @events
-			tmp_events.each do |event|
-				cond = event.first
-				block = event.last
-				
-				calc_current = @pad.calc_current
-				#puts "cond class name: #{cond.class.name}"
-				#puts "cond #{cond}, calc_current #{calc_current}"
-				if cond.is_a?(Range) && cond.include?(calc_current) ||
-					cond.is_a?(Fixnum) && (cond == calc_current) ||
-					cond.is_a?(Symbol) && @pad.done?(except: @job_reflection) && cond == :finish && calc_current >= 100
-					block.call self
-					@events.delete event
-				
+			ActiveRecord::Base.connection_pool.with_connection do 
+				tmp_events = @events
+				tmp_events.each do |event|
+					cond = event.first
+					block = event.last
+					
+					calc_current = @pad.calc_current
+					#puts "cond class name: #{cond.class.name}"
+					#puts "cond #{cond}, calc_current #{calc_current}"
+					if cond.is_a?(Range) && cond.include?(calc_current) ||
+						cond.is_a?(Fixnum) && (cond == calc_current) ||
+						cond.is_a?(Symbol) && @pad.done?(except: @job_reflection) && cond == :finish && calc_current >= 100
+						
+						block.call self
+						@events.delete event
+					
+					end
 				end
 			end
 		end

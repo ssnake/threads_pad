@@ -148,7 +148,7 @@ module ThreadsPad
 				# Thread.list.each { |t| puts "Thread_id: #{t.object_id}"} 
 				# puts "wait is done:"
 				# list.each {|jr| puts "alive? #{jr.thread_alive?} |||| #{jr.inspect}"}
-
+				
 			end
 			def wait_all list=nil
 				self.wait list, true
