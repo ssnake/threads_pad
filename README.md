@@ -43,7 +43,7 @@ Let's say we need to parse a csv file(demo.csv). To make it faster we can devide
 
 First of all you have to create a class with base class *ThreadsPad::Job*  and define *work* method. This method will be run in *Thread*
 
-    class CsvParsingJob << ThreadsPad::Job
+    class CsvParsingJob < ThreadsPad::Job
       def initialize filename, start_row, count
         self.max = count
         @start_row = start_row
@@ -73,8 +73,8 @@ Base class *ThreadsPad::Job* has following methods:
 Ok, now it's time to run a job. Let's say our *demo.csv* has 10000 lines.
 
     pad = ThreadsPad::Pad.new
-    pad << YourJob.new 'demo.csv', 1, 5000
-    pad << YourJob.new 'demo.csv', 5001, 5000
+    pad << CsvParsingJob.new 'demo.csv', 1, 5000
+    pad << CsvParsingJob.new 'demo.csv', 5001, 5000
     @job_id = pad.start
 
 
